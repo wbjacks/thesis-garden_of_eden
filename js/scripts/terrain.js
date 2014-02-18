@@ -48,8 +48,7 @@ map_geometry.computeVertexNormals();
 
 
 // Add height data to geometry
-var i;
-for (i = 0; i < map_geometry.vertices.length; i++) {
+for (var i = 0; i < map_geometry.vertices.length; i++) {
     map_geometry.vertices[i].z = height_array[i];
 
 }
