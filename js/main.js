@@ -10,6 +10,7 @@
 function render() {
     requestAnimationFrame(render);
     renderer.render(scene, camera);
+    controls.update();
 
 }
 
@@ -26,6 +27,10 @@ document.body.appendChild( renderer.domElement );
 
 // Construct terrain
 Terrain.build(scene, camera);
+
+// Add controls
+controls = new THREE.OrbitControls(camera);
+
 
 // Render
 render();
