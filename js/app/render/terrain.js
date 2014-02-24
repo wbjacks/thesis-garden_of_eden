@@ -9,18 +9,21 @@
 //  files basically just give you objects. We'll see if it works out; if not,
 //  I'll probably just use the weird bootstrapped Require.js
 var Terrain = {
-    length: 50,
-    height: 50,
+    length: 100,
+    height: 100,
     resolution: 1,
+    ROUGHNESS: 5,
+    MAX_HEIGHT: 50,
+    MIN_HEIGHT: -10,
+    HILLINESS: 3,
     // This could almost certainly be more OO- have a "map" parameter?
     // have the object represent the actual mesh?
     build: function(scene, camera) {
         var height_array = [];
         var sub_square = [];
-        this.mpd(height_array, 0, 10, sub_square);
-        height_array = [].concat.apply([], height_array);
+        this.mpd(height_array, 0, 7, sub_square);
         console.log(height_array);
-
+        height_array = [].concat.apply([], height_array);
 
         // Geometry for floor is a plane with specified resolution
         var map_geometry = new THREE.PlaneGeometry(
@@ -65,6 +68,8 @@ var Terrain = {
     // curr_depth is the current depth
     // max_depth is the maximum depth (-1 for until end)
     // square is an array of indices
+    // From wikipedia: Diamond square algorithm
+    // Constants added from me
     mpd: function(geometry, curr_depth, max_depth, square) {
         // Check depth
         // BASE CASE
@@ -80,7 +85,22 @@ var Terrain = {
                     geometry[i][j] = 0;
 
             }
-            square = [[0,0], [this.length-1, 0], [0, this.height-1]];
+            // Create initial square
+            square = [[0,0], [this.length-1, 0], [0, this.height-1],
+                [this.length-1, this.height-1]];
+
+            // Set outside square to random height
+            geometry[0][0] = this.MIN_HEIGHT +
+                (this.MAX_HEIGHT-this.MIN_HEIGHT)*Math.random();
+            geometry[this.length-1][0] = this.MIN_HEIGHT +
+                (this.MAX_HEIGHT-this.MIN_HEIGHT)*Math.random();
+            geometry[0][this.height-1] = this.MIN_HEIGHT +
+                (this.MAX_HEIGHT-this.MIN_HEIGHT)*Math.random();
+            geometry[this.length-1][this.height-1] = this.MIN_HEIGHT +
+                (this.MAX_HEIGHT-this.MIN_HEIGHT)*Math.random();
+
+            console.log(geometry);
+            
 
         }
 
@@ -89,18 +109,56 @@ var Terrain = {
         //  it would probably be much faster and definitely be prettier
         // Find midpoint of given square, recurse on new squares
         // If square is oriented perpendicular to axis
-        midpoint = [Math.floor(0.5*(square[1][0]+square[2][0])),
-                    Math.floor(0.5*(square[1][1]+square[2][1]))];
-        //console.log("Midpoint is " + midpoint);
-        // Look into other things to add other than Math.random();
-        geometry[midpoint[0]][midpoint[1]] += 0.5-Math.random();
-        // Generate new squares, oriented starting at center and going ccw
-        var new_sq = []; 
-        new_sq[0] = [midpoint, square[0], square[1]];
-        new_sq[1] = [midpoint, square[1], [square[1][0], square[2][1]]];
-        new_sq[2] = [midpoint, [square[1][0], square[2][1]], square[2]];
-        new_sq[3] = [midpoint, square[2], square[0]];
+        dx = Math.floor(0.5*(square[1][0] - square[0][0]));
+        dy = Math.floor(0.5*(square[2][1] - square[0][1]));
 
+        // Generate new squares, oriented starting at center and going ccw
+        var new_sq = [];
+        new_sq[0] = [square[0],
+                    [square[0][0]+dx, square[0][1]],
+                    [square[0][0], square[0][1]+dy],
+                    [square[0][0]+dx, square[0][1]+dy]];
+        new_sq[1] = [[square[0][0]+dx, square[0][1]],
+                    square[1],
+                    [square[0][0]+dx, square[0][1]+dy],
+                    [square[1][0], square[0][1]+dy]];
+        new_sq[2] = [[square[0][0], square[0][1]+dy],
+                    [square[0][0]+dx, square[0][1]+dy],
+                    square[2],
+                    [square[0][0]+dx, square[2][1]]];
+        new_sq[3] = [[square[0][0]+dx, square[0][1]+dy],
+                    [square[1][0], square[0][1]+dy],
+                    [square[0][0]+dx, square[2][1]],
+                    square[3]];
+
+        // Set geometry with linear interpolation
+        // North
+        geometry[new_sq[0][1][0]][new_sq[0][1][1]] =
+            0.5*(geometry[square[1][0]][square[1][1]] +
+            geometry[square[0][0]][square[0][1]]);
+
+        // West
+        geometry[new_sq[0][2][0]][new_sq[0][2][1]] =
+            0.5*(geometry[square[0][0]][square[0][1]] +
+            geometry[square[2][0]][square[2][1]]);
+
+        // East
+        geometry[new_sq[1][3][0]][new_sq[1][3][1]] =
+            0.5*(geometry[square[1][0]][square[1][1]] +
+            geometry[square[3][0]][square[3][1]]);
+
+        // South
+        geometry[new_sq[2][3][0]][new_sq[2][3][1]] =
+            0.5*(geometry[square[2][0]][square[2][1]] +
+            geometry[square[3][0]][square[3][1]]);
+
+        // Center- play with random factor!
+        geometry[new_sq[0][3][0]][new_sq[0][3][1]] =
+            0.25*(geometry[square[0][0]][square[0][1]] +
+            geometry[square[1][0]][square[1][1]] +
+            geometry[square[2][0]][square[2][1]] +
+            geometry[square[3][0]][square[3][1]] +
+            ((0.5*this.ROUGHNESS)-(Math.random()*this.ROUGHNESS))*(max_depth-curr_depth)*this.HILLINESS);
 
         // Launch recursion
         for (var i = 0; i < 4; i++)
