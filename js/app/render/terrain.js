@@ -18,8 +18,8 @@ var Terrain = {
     length: 100,
     height: 100,
     resolution: 1,
-    ROUGHNESS: 50,
-    H: 0.9, 
+    ROUGHNESS: 10,
+    H: 0.5, 
     MAX_HEIGHT: 80,
     MIN_HEIGHT: -10,
     HILLINESS: 0.1,
@@ -39,9 +39,6 @@ var Terrain = {
                 (this.height-1) / this.resolution,
                 (this.length-1) / this.resolution);
 
-        // terrain_gen.mpd(map_geometry);
-
-
         // Add height data to geometry
         for (var i = 0; i < map_geometry.vertices.length; i++) {
             map_geometry.vertices[i].z = height_array[i];
@@ -51,10 +48,11 @@ var Terrain = {
         map_geometry.computeVertexNormals();
 
         // Build material
+        // try 
         var material = new THREE.MeshLambertMaterial({
-            color: 0x996633, 
+            color: 0x996633,
             ambient: 0x666633,
-            wireframe: false
+            //wireframe: true
         });
 
         // Construct plane and add to scene
@@ -108,7 +106,6 @@ var Terrain = {
                 (this.MAX_HEIGHT-this.MIN_HEIGHT)*Math.random();
 
             console.log(geometry);
-            
 
         }
 
@@ -161,8 +158,10 @@ var Terrain = {
             geometry[square[3][0]][square[3][1]]);
 
         // Center- play with random factor!
-        var offset = (curr_depth == max_depth-1) ? 0 :
-            randomNormal()*this.ROUGHNESS*Math.pow(2, -this.H * curr_depth);
+        var offset = randomNormal() * this.ROUGHNESS *
+            Math.pow(2, -this.H * curr_depth);
+        //var offset = randomNormal() * this.ROUGHNESS *
+        //    Math.pow(2, -this.H * curr_depth);
         geometry[new_sq[0][3][0]][new_sq[0][3][1]] =
             0.25*(geometry[square[0][0]][square[0][1]] +
             geometry[square[1][0]][square[1][1]] +
