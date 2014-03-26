@@ -56,22 +56,24 @@ Turtle.prototype._F = function(time) {
 // Move turtle forward, not drawing a line
 Turtle.prototype._f = function() {
     // Move turtle to new position
+    var heading = new THREE.Vector3(0,0,1);
+    heading.applyEuler(this.rotation);
     this.position.add(heading.multiplyScalar(time*this.rate));
 
 }
 // Rotate around the U axis ("up"), the local y axis
 Turtle.prototype._+ = function(deg) {
-    this.rotation.y = deg;
+    this.rotation.y += deg;
 
 }
 // Rotate around the L axis ("left"), the local x axis
 Turtle.prototype._& = function(deg) {
-    this.rotation.x = deg;
+    this.rotation.x += deg;
 
 }
 // Rotate around the H axis ("heading"), the local z axis
 Turtle.prototype._/ = function(deg) {
-    this.rotation.z = deg;
+    this.rotation.z += deg;
 
 }
 // ?? Sets line width / diameter ??
