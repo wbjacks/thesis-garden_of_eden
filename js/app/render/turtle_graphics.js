@@ -5,7 +5,7 @@
 //http://www.akdillon.net/pages/classes/cs493/dillon_proj2_final/docs/lsys.html
 
 // Turtle wrapper for three.js
-function Turtle(sc, mat) {//, loc, U, L, H) {
+function Turtle(sc, mat, rad) {//, loc, U, L, H) {
     // Call parent constructor
     THREE.Object3D.call(this);
 
@@ -15,8 +15,8 @@ function Turtle(sc, mat) {//, loc, U, L, H) {
     // Rate of turtle movement
     this.rate = 1;
 
-    // Diameter of drawn cylinder
-    this.width = 1;
+    // Radius of drawn cylinder
+    this.width = rad;
 
     // THREE.js stuff
     this.scene = sc;
@@ -42,7 +42,7 @@ Turtle.prototype._F = function(time) {
 
     // Build initial transform matrix
     var mat_it = new THREE.Matrix4();
-    mat_it.makeTranslation(0, 0, 0.5*this.width*time);
+    mat_it.makeTranslation(0, 0, 0.5*this.rate*time);
     var mat_ir = new THREE.Matrix4();
     mat_ir.makeRotationFromEuler(new THREE.Euler(Math.PI / 2, 0, 0));
     var mat_is = new THREE.Matrix4();
