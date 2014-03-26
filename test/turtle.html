@@ -1,0 +1,60 @@
+
+<html>
+<head>
+    <meta charset="UTF-8"/>
+
+    <title>Turtle Graphics Tester</title>
+    <style>canvas { width: 100%; height: 100% }</style>
+
+    <!-- Javascript libraries -->
+    <script src="../js/lib/three.min.js"></script>
+    <script src="../js/lib/OrbitControls.js"></script>
+
+</head>
+
+<body>
+    <!-- Scripts, structure left over from Require.js -->
+    <script src="../js/app/render/turtle_graphics.js"></script>
+    <script>
+        // Construct scene
+        var scene = new THREE.Scene();
+        var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+        var renderer = new THREE.WebGLRenderer();
+        renderer.setSize( window.innerWidth, window.innerHeight );
+        document.body.appendChild( renderer.domElement );
+
+        // Construct objects
+        var t = new Turtle(scene, material);
+        var turtle_string = [new Action(t._pitch, Math.PI / 2),
+                            new Action(t._F, 20),
+                            new Action(t._yaw, Math.PI / 2),
+                            new Action(t._F, 20),
+                            new Action(t._yaw, Math.PI / 2),
+                            new Action(t._F, 20),
+                            new Action(t._yaw, Math.PI / 2),
+                            new Action(t._F, 20)];
+        var material = new THREE.MeshBasicMaterial({color: 0x00ff00});
+
+        // Position camera
+        camera.position.z = 5;
+
+        // Run tutle
+        t.run(turtle_string);
+
+        // Add controls
+        controls = new THREE.OrbitControls(camera);
+
+        // Render
+        var render = function () {
+            requestAnimationFrame(render);
+            renderer.render(scene, camera);
+            controls.update();
+
+        };
+        render(); 
+
+    </script>
+
+
+</body>
+</html>
