@@ -31,6 +31,7 @@ Turtle.prototype.constructor = Turtle;
 
 /* Turtle actions */
 // Move turtle forward, drawing a line
+// TODO: WAAY too many objects created?
 Turtle.prototype._F = function(time) {
     /* DRAW WITH THREE.js */
     // Create geometry
@@ -39,13 +40,38 @@ Turtle.prototype._F = function(time) {
         time*this.rate);
     var mesh = new THREE.Mesh(geo, this.material);
 
+    // Build initial transform matrix
+    var mat_it = new THREE.Matrix4();
+    mat_it.makeTranslation(0, 0, 0.5*this.width*time);
+    var mat_ir = new THREE.Matrix4();
+    mat_ir.makeRotationFromEuler(new THREE.Euler(Math.PI / 2, 0, 0));
+    var mat_is = new THREE.Matrix4();
+    mat_is.makeScale(1,1,1);
+    var mat_i = new THREE.Matrix4();
+    mat_i.multiplyMatrices(mat_it, mat_ir);
+    mat_i.multiply(mat_is);
+    mesh.applyMatrix(mat_i);
+
     // Move in to position, assuming cylinder is oriented y+ w/ axis at center
+    // Move into initial position
+    //mesh.rotation.set(Math.PI / 2, 0, 0);
+
+    // Get heading vector
     var heading = new THREE.Vector3(0,0,1);
     heading.applyEuler(this.rotation);
-    var pos = new THREE.Vector3;
-    pos.addVectors(this.position, heading.multiplyScalar(0.5*time*this.rate));
-    mesh.position = pos;
-    mesh.rotation = this.rotation;
+
+    // Build move matrix
+    var mat_ft = new THREE.Matrix4();
+    mat_ft.makeTranslation(this.position.x, this.position.y, this.position.z);
+    var mat_fr = new THREE.Matrix4();
+    mat_fr.makeRotationFromEuler(this.rotation);
+    var mat_fs = new THREE.Matrix4();
+    mat_fs.makeScale(1,1,1);
+    var mat_f = new THREE.Matrix4();
+    mat_f.multiplyMatrices(mat_ft, mat_fr);
+    mat_f.multiply(mat_fs);
+    mesh.applyMatrix(mat_f);
+
     scene.add(mesh);
 
     // Move turtle to new position
@@ -108,9 +134,11 @@ Turtle.prototype._pop = function() {
 Turtle.prototype.run = function(actions) {
     // Actions are current free of context, use "call" to run them on this
     // instance
-    for (var i = 0; i < actions.length; i++)
+    for (var i = 0; i < actions.length; i++) {
+        console.log(i);
         actions[i].f.call(this, actions[i].t);
 
+    }
     // Consider resetting position?
 
 };
