@@ -86,17 +86,17 @@ Turtle.prototype._f = function(time) {
     this.position.add(heading.multiplyScalar(time*this.rate));
 
 };
-// Rotate around the U axis ("up"), the local y axis
+// Rotate around the U axis ("up"), the local y axis, +
 Turtle.prototype._yaw = function(deg) {
     this.rotation.y += deg;
 
 };
-// Rotate around the L axis ("left"), the local x axis
+// Rotate around the L axis ("left"), the local x axis, &
 Turtle.prototype._pitch = function(deg) {
     this.rotation.x += deg;
 
 };
-// Rotate around the H axis ("heading"), the local z axis
+// Rotate around the H axis ("heading"), the local z axis, /
 Turtle.prototype._roll = function(deg) {
     this.rotation.z += deg;
 
@@ -135,17 +135,19 @@ Turtle.prototype.run = function(actions) {
     // Actions are current free of context, use "call" to run them on this
     // instance
     for (var i = 0; i < actions.length; i++) {
-        console.log(i);
-        actions[i].f.call(this, actions[i].t);
+        if (actions[i] instanceof Turtle.Action) {
+            actions[i].f.call(this, actions[i].t);
 
+        }
     }
     // Consider resetting position?
 
 };
 
 // Holds an action and parameters. Not sure if this is the best way to do this
-function Action(func, time) {
+Turtle.Action = function(func, time, inject) {
     this.f = func;
     this.t = time;
+    this.inject_args = inject; // Used to dynamically set arguments
 
 };

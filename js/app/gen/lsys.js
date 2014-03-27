@@ -1,18 +1,19 @@
 // Generates a unique l-system tree for a given rule dictionary
 
-function LSystem(rd, iv) {
+function LSystem(rules, initial) {
      // Construct
-    var rules = rd;
+    var rule_table = rules;
     var seed = 0; // Generate random seed 
     var system = null;
-    var l_string = iv;
+    var l_string = initial;
     var MAX_DEPTH = 20; //idk
 
 }
 
-function Production(id, args) {
+function Production(id, args, inject) {
     this.id = id; // Production ID
     this.args = args; // Parametric term
+    this.inject_args = inject;
 
 }
 
@@ -47,18 +48,32 @@ LSystem.prototype.LSRecurse = function(str, depth) {
 
 };
 
-LSystem.prototype.launcher = function() {
+LSystem.prototype.build = function() {
     // Run recursion
     this.system = LSrecurse(this.seed, 0);
 
 };
 
 LSystem.prototype.checkRule(production) {
+    // Do nothing if an action
     if (production instanceof Action) return production;
-    for (var rule in this.rules) {
-        if (rule.id == production.id && rule.condition(this.args))
+
+    // Must be production
+    for (var rule in this.rule_table.rules) {
+        if (rule.id == production.id && rule.condition(production.args)) {
+            // Rule match
+            var act;
+            for (var j; j < rule.output.length; j++) {
+                // Inject arguements to rules and productions
+                if (!rule.inject_args) {
+                    rule.output[i].inject_args(
+                        this.rule_dict.consts, production.args);
+
+                }
+            }
             return rule.output;
 
+        }
     }
     return production;
 

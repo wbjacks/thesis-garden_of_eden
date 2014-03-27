@@ -27,19 +27,20 @@
         var axis = new THREE.AxisHelper(10);
         scene.add(axis);
 
+        // Create grid
         var grid = new THREE.GridHelper(20, 1);
         scene.add(grid);
 
         // Construct objects
         var t = new Turtle(scene, material, 0.25);
-        var turtle_string = [new Action(t._pitch, Math.PI / 2),
-                            new Action(t._F, 20),
-                            new Action(t._yaw, Math.PI / 2),
-                            new Action(t._F, 20),
-                            new Action(t._yaw, Math.PI / 2),
-                            new Action(t._F, 20),
-                            new Action(t._yaw, Math.PI / 2),
-                            new Action(t._F, 20)];
+        var turtle_string = [new Turtle.Action(t._pitch, Math.PI / 2),
+                            new Turtle.Action(t._F, 20),
+                            new Turtle.Action(t._yaw, Math.PI / 2),
+                            new Turtle.Action(t._F, 20),
+                            new Turtle.Action(t._yaw, Math.PI / 2),
+                            new Turtle.Action(t._F, 20),
+                            new Turtle.Action(t._yaw, Math.PI / 2),
+                            new Turtle.Action(t._F, 20)];
         //var turtle_string = [new Action(t._yaw, Math.PI / 4), new Action(t._F, 10)];
         //var turtle_string = [new Action(t._F, 10)];
         var material = new THREE.MeshBasicMaterial({color: 0x00ff00});
