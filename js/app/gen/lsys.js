@@ -1,48 +1,56 @@
 // Generates a unique l-system tree for a given rule dictionary
 
-function LSystem(rules, initial) {
+function LSystem(rules) {
      // Construct
-    var rule_table = rules;
-    var seed = 0; // Generate random seed 
-    var system = null;
-    var l_string = initial;
-    var MAX_DEPTH = 20; //idk
+    this.rule_table = rules;
+    this.seed = Math.random(); // Generate random seed 
+    this.system = rules.initial;
+    this.MAX_DEPTH = 20; //idk
 
 }
 
-function Production(id, args, inject) {
+
+
+LSystem.Production = function(id, args, inject) {
     this.id = id; // Production ID
     this.args = args; // Parametric term
     this.inject_args = inject;
 
 }
 
-function Rule(id, condition, output) {
+LSystem.RuleSet = function(consts, initial, rules) {
+    this.consts = consts;
+    this.initial = initial;
+    this.rules = rules;
+
+}
+
+LSystem.Rule = function(id, condition, output) {
     this.id = id; // ID corresponding to the production this affects
     this.condition = condition; // Condition on the parametric term
     this.output = output; // If applied, what to replace with
 
 }
 
-LSystem.prototype.LSRecurse = function(str, depth) {
+LSystem.prototype.LSRecurse = function(prod, depth) {
     // Base case is depth
     // TODO: Check if action?
-    if (depth == MAX_DEPTH) return;
+    if (depth == this.MAX_DEPTH+1) return [prod];
 
     var stack = [];
-    // Recursive case: run a single pass of the string
+    // Recursive case: replace production, recurse on list, then flatten
     // TODO This could totes be more recursive
-    var pt = 0;
-    for (var i = 0; i < l_string.length; i++) {
+    var out = this.checkRule(prod);
+    for (var i = 0; i < out.length; i++) {
         // TODO: Roll out the loop
-        var ret;
-        ret = this.LSRecurse(this.checkRule(str[i]), depth+1);
+        var rec_stack;
+        rec_stack = this.LSRecurse(out[i], depth+1);
 
         // Flatten list to stack
-        stack = stack.concat(ret.reduce(function(acc, val) {
+        stack = stack.concat(rec_stack.reduce(function(acc, val) {
             return acc.concat(val);
 
-        }, []);
+        }, []));
     }
     return stack;
 
@@ -50,24 +58,37 @@ LSystem.prototype.LSRecurse = function(str, depth) {
 
 LSystem.prototype.build = function() {
     // Run recursion
-    this.system = LSrecurse(this.seed, 0);
+    var stack = [];
+    for (var i = 0; i < this.system.length; i++) {
+        // Recurse
+        var rec_stack;
+        rec_stack = this.LSRecurse(this.system[i], 1);
+
+        // Flatten list to stack
+        stack = stack.concat(rec_stack.reduce(function(acc, val) {
+            return acc.concat(val);
+
+        }, []));
+    }
+    this.system = stack;
 
 };
 
-LSystem.prototype.checkRule(production) {
+LSystem.prototype.checkRule = function(production) {
     // Do nothing if an action
-    if (production instanceof Action) return production;
+    if (!production instanceof LSystem.Production) return production;
 
     // Must be production
-    for (var rule in this.rule_table.rules) {
-        if (rule.id == production.id && rule.condition(production.args)) {
+    for (var i = 0; i < this.rule_table.rules.length; i++) {
+        var rule = this.rule_table.rules[i];
+        if (rule.id == production.id && rule.condition(production)) {
             // Rule match
             var act;
-            for (var j; j < rule.output.length; j++) {
+            for (var j = 0; j < rule.output.length; j++) {
                 // Inject arguements to rules and productions
-                if (!rule.inject_args) {
-                    rule.output[i].inject_args(
-                        this.rule_dict.consts, production.args);
+                if (rule.output[j].inject_args != null) {
+                    rule.output[j].inject_args(
+                        production.args, this.rule_table.consts);
 
                 }
             }
@@ -76,5 +97,40 @@ LSystem.prototype.checkRule(production) {
         }
     }
     return production;
+
+}
+
+/* OUTPUT FOR DEBUG */
+LSystem.prototype.printSystem = function() {
+    if (this.system == null) {
+        console.log('null');
+        return;
+
+    }
+    var output = '';
+    for (var i = 0; i < this.system.length; i++) {
+        if (this.system[i] instanceof LSystem.Production) {
+            // Print ID
+            output=output.concat(this.system[i].id + '(');
+
+            // Print formatted args
+            for (var j = 0; j < this.system[i].args.length; j++) {
+                output=output.concat(this.system[i].args[j] + ', ');
+
+            }
+            // Remove last two characters
+            output=output.substr(0, output=output.length-2);
+
+            // Close
+            output=output.concat(') ');
+
+        }
+        // Assumed to be Turtle.Action DANGER CAPTAIN DANGER
+        else {
+            output=output.concat(this.system[i].f.name + '(' + this.system[i].t + ') ');
+
+        }
+    }
+    console.info("LSystem is: " + output);
 
 }
