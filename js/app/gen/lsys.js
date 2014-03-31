@@ -5,7 +5,7 @@ function LSystem(rules) {
     this.rule_table = rules;
     this.seed = Math.random(); // Generate random seed 
     this.system = rules.initial;
-    this.MAX_DEPTH = 20; //idk
+    this.MAX_DEPTH = 10; //idk
 
 }
 
@@ -15,6 +15,11 @@ LSystem.Production = function(id, args, inject) {
     this.id = id; // Production ID
     this.args = args; // Parametric term
     this.inject_args = inject;
+
+
+}
+LSystem.Production.prototype.clone  = function() {
+    return new LSystem.Production(this.id, this.args, this.inject_args);
 
 }
 
@@ -56,7 +61,7 @@ LSystem.prototype.LSRecurse = function(prod, depth) {
 
 };
 
-LSystem.prototype.build = function() {
+LSystem.prototype.build = function(debug) {
     // Run recursion
     var stack = [];
     for (var i = 0; i < this.system.length; i++) {
@@ -71,12 +76,17 @@ LSystem.prototype.build = function() {
         }, []));
     }
     this.system = stack;
+    if (debug === true) {
+        console.debug('Build yields:');
+        this.printSystem();
+
+    }
 
 };
 
 LSystem.prototype.checkRule = function(production) {
     // Do nothing if an action
-    if (!production instanceof LSystem.Production) return [production];
+    if (production instanceof LSystem.Production == false) return [production];
 
     // Must be production
     for (var i = 0; i < this.rule_table.rules.length; i++) {
@@ -86,9 +96,7 @@ LSystem.prototype.checkRule = function(production) {
             var output = [];
             for (var j = 0; j < rule.output.length; j++) {
                 // Make new Production object
-                output[j] = new LSystem.Production();
-                output[j].id = rule.output[j].id;
-                output[j].inject_args = rule.output[j].inject_args;
+                output[j] = rule.output[j].clone();
 
                 // Inject arguements to rules and productions
                 if (output[j].inject_args != null) {

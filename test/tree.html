@@ -1,0 +1,67 @@
+
+<html>
+<head>
+    <meta charset="UTF-8"/>
+
+    <title>Tree Tester</title>
+    <style>canvas { width: 100%; height: 100% }</style>
+
+    <!-- Javascript libraries -->
+    <script src="../js/lib/three.min.js"></script>
+    <script src="../js/lib/OrbitControls.js"></script>
+
+</head>
+
+<body>
+    <!-- Scripts, structure left over from Require.js -->
+    <script src="../js/app/gen/lsys.js"></script>
+    <script src="../js/app/render/turtle_graphics.js"></script>
+    <script src="../js/app/gen/lsys_rules.js"></script>
+    <script>
+        // Construct scene
+        var scene = new THREE.Scene();
+        var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+        var renderer = new THREE.WebGLRenderer();
+        renderer.setSize( window.innerWidth, window.innerHeight );
+        document.body.appendChild( renderer.domElement );
+
+        // Create axis
+        var axis = new THREE.AxisHelper(10);
+        scene.add(axis);
+
+        // Create grid
+        var grid = new THREE.GridHelper(20, 1);
+        scene.add(grid);
+
+        // Construct objects
+        var material = new THREE.MeshBasicMaterial({color: 0x00ff00});
+        var t = new Turtle(scene, material, 0.25);
+        var tree = new HondaTree(t);
+        var lsys = new LSystem(tree);
+        lsys.MAX_DEPTH = 2; // limit depth
+
+        // Position camera
+        camera.position.z = 20;
+        camera.position.y = 20;
+
+        // Run tutle
+        lsys.build(true);
+        t.run(lsys.system);
+
+        // Add controls
+        controls = new THREE.OrbitControls(camera);
+
+        // Render
+        var render = function () {
+            requestAnimationFrame(render);
+            renderer.render(scene, camera);
+            controls.update();
+
+        };
+        render(); 
+
+    </script>
+
+
+</body>
+</html>
