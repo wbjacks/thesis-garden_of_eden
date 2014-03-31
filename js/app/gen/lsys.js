@@ -76,27 +76,32 @@ LSystem.prototype.build = function() {
 
 LSystem.prototype.checkRule = function(production) {
     // Do nothing if an action
-    if (!production instanceof LSystem.Production) return production;
+    if (!production instanceof LSystem.Production) return [production];
 
     // Must be production
     for (var i = 0; i < this.rule_table.rules.length; i++) {
         var rule = this.rule_table.rules[i];
         if (rule.id == production.id && rule.condition(production)) {
             // Rule match
-            var act;
+            var output = [];
             for (var j = 0; j < rule.output.length; j++) {
+                // Make new Production object
+                output[j] = new LSystem.Production();
+                output[j].id = rule.output[j].id;
+                output[j].inject_args = rule.output[j].inject_args;
+
                 // Inject arguements to rules and productions
-                if (rule.output[j].inject_args != null) {
-                    rule.output[j].inject_args(
+                if (output[j].inject_args != null) {
+                    output[j].inject_args(
                         production.args, this.rule_table.consts);
 
                 }
             }
-            return rule.output;
+            return output;
 
         }
     }
-    return production;
+    return [production];
 
 }
 
@@ -114,13 +119,15 @@ LSystem.prototype.printSystem = function() {
             output=output.concat(this.system[i].id + '(');
 
             // Print formatted args
-            for (var j = 0; j < this.system[i].args.length; j++) {
-                output=output.concat(this.system[i].args[j] + ', ');
+            if (this.system[i].args != null) {
+                for (var j = 0; j < this.system[i].args.length; j++) {
+                    output=output.concat(this.system[i].args[j] + ', ');
+
+                }
+                // Remove last two characters
+                output=output.substr(0, output=output.length-2);
 
             }
-            // Remove last two characters
-            output=output.substr(0, output=output.length-2);
-
             // Close
             output=output.concat(') ');
 
