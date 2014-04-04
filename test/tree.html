@@ -31,18 +31,29 @@
 
         // Create grid
         var grid = new THREE.GridHelper(20, 1);
+        grid.rotation.x = Math.PI / 2;
         scene.add(grid);
 
+        // Add light
+        var light = new THREE.DirectionalLight(0xffffff, 1);
+        light.shadowCameraVisible = true;
+        light.position.set(0,-100,400);
+        scene.add(light);
+
         // Construct objects
-        var material = new THREE.MeshBasicMaterial({color: 0x00ff00});
+        var material = new THREE.MeshLambertMaterial({
+            color: 0x996633,
+            ambient: 0x666633,
+
+        });
         var t = new Turtle(scene, material, 0.25);
         var tree = new HondaTree(t);
         var lsys = new LSystem(tree);
-        lsys.MAX_DEPTH = 2; // limit depth
+        lsys.MAX_DEPTH = 11; // limit depth
 
         // Position camera
-        camera.position.z = 20;
-        camera.position.y = 20;
+        camera.position.z = 80;
+        camera.position.y = -80;
 
         // Run tutle
         lsys.build(true);

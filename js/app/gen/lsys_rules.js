@@ -1,6 +1,6 @@
 function HondaTree(t) {
     var consts = {R_1: 0.9, R_2: 0.6, A_0: Math.PI/4, A_2: Math.PI/4, D: 137.5, W_R: 0.707};
-    var initial = [new LSystem.Production('A', [1, 10])];
+    var initial = [new LSystem.Production('A', [10, 1])];
     var rules = [
         new LSystem.Rule('A', function() {return true;}, [
             new Turtle.Action(t._set, null,

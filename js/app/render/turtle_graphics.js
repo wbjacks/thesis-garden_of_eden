@@ -9,6 +9,9 @@ function Turtle(sc, mat, rad) {//, loc, U, L, H) {
     // Call parent constructor
     THREE.Object3D.call(this);
 
+    // Hack b/c I can't get euler rotations to work
+    this.orientation = new THREE.Matrix4().makeRotationZ(0);
+
     // Turtle stack used to save states
     this.stack = [];
 
@@ -58,13 +61,12 @@ Turtle.prototype._F = function(time) {
 
     // Get heading vector
     var heading = new THREE.Vector3(0,0,1);
-    heading.applyEuler(this.rotation);
+    heading.transformDirection(this.orientation);
 
     // Build move matrix
     var mat_ft = new THREE.Matrix4();
     mat_ft.makeTranslation(this.position.x, this.position.y, this.position.z);
-    var mat_fr = new THREE.Matrix4();
-    mat_fr.makeRotationFromEuler(this.rotation);
+    var mat_fr = this.orientation;
     var mat_fs = new THREE.Matrix4();
     mat_fs.makeScale(1,1,1);
     var mat_f = new THREE.Matrix4();
@@ -82,23 +84,47 @@ Turtle.prototype._F = function(time) {
 Turtle.prototype._f = function(time) {
     // Move turtle to new position
     var heading = new THREE.Vector3(0,0,1);
-    heading.applyEuler(this.rotation);
+    heading.transformDirection(this.orientation);
     this.position.add(heading.multiplyScalar(time*this.rate));
 
 };
 // Rotate around the U axis ("up"), the local y axis, +
 Turtle.prototype._yaw = function(deg) {
-    this.rotation.y += deg;
+    // Create rotation matrix
+    var rot = new THREE.Matrix4();
+    rot.makeRotationY(deg);
+
+    // Do a rotation of the parent object by the matrix
+    this.orientation.multiplyMatrices(this.orientation, rot);
+
+    // Change parent rotation
+    this.setRotationFromMatrix(this.orientation);
 
 };
 // Rotate around the L axis ("left"), the local x axis, &
 Turtle.prototype._pitch = function(deg) {
-    this.rotation.x += deg;
+    // Create rotation matrix
+    var rot = new THREE.Matrix4();
+    rot.makeRotationX(deg);
+
+    // Do a rotation of the parent object by the matrix
+    this.orientation.multiplyMatrices(this.orientation, rot);
+
+    // Change parent rotation
+    this.setRotationFromMatrix(this.orientation);
 
 };
 // Rotate around the H axis ("heading"), the local z axis, /
 Turtle.prototype._roll = function(deg) {
-    this.rotation.z += deg;
+    // Create rotation matrix
+    var rot = new THREE.Matrix4();
+    rot.makeRotationZ(deg);
+
+    // Do a rotation of the parent object by the matrix
+    this.orientation.multiplyMatrices(this.orientation, rot);
+
+    // Change parent rotation
+    this.setRotationFromMatrix(this.orientation);
 
 };
 // ?? Sets line width / diameter ??
@@ -109,7 +135,8 @@ Turtle.prototype._set = function(width) {
 // Pushes state (object3d info) on to stack
 Turtle.prototype._push = function() {
     // There's prob a better way but for now imma store values sue me
-    var state = {position: this.position, rotation: this.rotation};
+    var state = this.clone();
+    state.orientation = this.orientation.clone();
     this.stack.push(state);
 
 };
@@ -124,8 +151,10 @@ Turtle.prototype._pop = function() {
         return;
 
     }
+    // Now I basically have to make "this" into "state"
     this.position = state.position;
-    this.rotation = state.rotation;
+    this.roatation = state.rotation;
+    this.orientation = state.orientation;
 
 };
 
