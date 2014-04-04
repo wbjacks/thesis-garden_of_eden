@@ -18,9 +18,9 @@ function render() {
 var scene = new THREE.Scene();
 var camera = new THREE.PerspectiveCamera( 75,
     window.innerWidth / window.innerHeight, 0.1, 1000 );
-camera.position.z = 50;
-camera.position.y = -100;
-camera.lookAt(new THREE.Vector3(0,0,0));
+camera.position.z = 200;
+camera.position.y = -150;
+camera.lookAt(new THREE.Vector3(Terrain.length/2, Terrain.height/2,0));
 var renderer = new THREE.WebGLRenderer();
 renderer.setSize( window.innerWidth, window.innerHeight );
 document.body.appendChild( renderer.domElement );

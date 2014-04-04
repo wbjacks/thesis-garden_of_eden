@@ -1,0 +1,55 @@
+
+<html>
+<head>
+    <meta charset="UTF-8"/>
+
+    <title>L-System Non-Graphical, Production-only Tester</title>
+    <style>canvas { width: 100%; height: 100% }</style>
+
+</head>
+
+<body>
+    <!-- Scripts, structure left over from Require.js -->
+    <script src="../js/app/gen/lsys.js"></script>
+    <script>
+        // Construct objects
+        function test(rec_depth) {
+            var rules = new LSystem.RuleSet();
+            rules.initial = [new LSystem.Production('B', [2]), new LSystem.Production('A', [4, 4])];
+            rules.rules = [
+                new LSystem.Rule('A', function(p) { return p.args[1] <= 3 }, [
+                    new LSystem.Production('A', null, function(args) {
+                        this.args = [args[0]*2, args[0]+args[1]];
+                    })
+                ]),
+                new LSystem.Rule('A', function(p) { return p.args[1] > 3 }, [
+                    new LSystem.Production('B', null, function(args) {
+                        this.args = [args[0]];
+                    }),
+                    new LSystem.Production('A', null, function(args) {
+                        this.args = [args[0]/args[1], 0];
+                    })
+                ]),
+                new LSystem.Rule('B', function(p) { return p.args[0] < 1 }, [
+                    new LSystem.Production('C', null, null)
+                ]),
+                new LSystem.Rule('B', function(p) { return p.args[0] >= 1 }, [
+                    new LSystem.Production('B', null, function(args) {
+                        this.args = [args[0]-1];
+                    })
+                ])
+            ];
+            var sys = new LSystem(rules);
+
+            // Manually set max depth
+            sys.MAX_DEPTH = rec_depth;
+
+            // Build and print
+            sys.build();
+            sys.printSystem(); // LET THE BODIES HIT THE FLOOR LET THE BODIES HIT THE FLOOR LET THE BOD
+
+        }
+        console.info("Use test(recursion_depth) to test L-System");
+    </script>
+</body>
+</html>

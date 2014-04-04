@@ -8,14 +8,21 @@
 //  + Switched from Require.js, but kept in this weird module-type coding where
 //  files basically just give you objects. We'll see if it works out; if not,
 //  I'll probably just use the weird bootstrapped Require.js
+
+// From http://rosettacode.org/wiki/Random_numbers#JavaScript
+function randomNormal() {
+  return Math.cos(2 * Math.PI * Math.random()) * Math.sqrt(-2 * Math.log(Math.random()))
+}
+
 var Terrain = {
     length: 100,
     height: 100,
     resolution: 1,
-    ROUGHNESS: 5,
-    MAX_HEIGHT: 50,
+    ROUGHNESS: 10,
+    H: 0.5, 
+    MAX_HEIGHT: 80,
     MIN_HEIGHT: -10,
-    HILLINESS: 3,
+    HILLINESS: 0.1,
     // This could almost certainly be more OO- have a "map" parameter?
     // have the object represent the actual mesh?
     build: function(scene, camera) {
@@ -32,21 +39,20 @@ var Terrain = {
                 (this.height-1) / this.resolution,
                 (this.length-1) / this.resolution);
 
-        // terrain_gen.mpd(map_geometry);
-        map_geometry.computeFaceNormals();
-        map_geometry.computeVertexNormals();
-
-
         // Add height data to geometry
         for (var i = 0; i < map_geometry.vertices.length; i++) {
             map_geometry.vertices[i].z = height_array[i];
 
         }
+        map_geometry.computeFaceNormals();
+        map_geometry.computeVertexNormals();
 
         // Build material
-        var material = new THREE.MeshPhongMaterial({
-              color: 0xdddddd, 
-              wireframe: true
+        // try 
+        var material = new THREE.MeshLambertMaterial({
+            color: 0x996633,
+            ambient: 0x666633,
+            //wireframe: true
         });
 
         // Construct plane and add to scene
@@ -60,7 +66,7 @@ var Terrain = {
 
         var light = new THREE.DirectionalLight(0xffffff, 1);
         light.shadowCameraVisible = true;
-        light.position.set(0,300,100);
+        light.position.set(0,300,400);
         scene.add(light);
 
     },
@@ -100,7 +106,6 @@ var Terrain = {
                 (this.MAX_HEIGHT-this.MIN_HEIGHT)*Math.random();
 
             console.log(geometry);
-            
 
         }
 
@@ -153,12 +158,16 @@ var Terrain = {
             geometry[square[3][0]][square[3][1]]);
 
         // Center- play with random factor!
+        var offset = randomNormal() * this.ROUGHNESS *
+            Math.pow(2, -this.H * curr_depth);
+        //var offset = randomNormal() * this.ROUGHNESS *
+        //    Math.pow(2, -this.H * curr_depth);
         geometry[new_sq[0][3][0]][new_sq[0][3][1]] =
             0.25*(geometry[square[0][0]][square[0][1]] +
             geometry[square[1][0]][square[1][1]] +
             geometry[square[2][0]][square[2][1]] +
             geometry[square[3][0]][square[3][1]] +
-            ((0.5*this.ROUGHNESS)-(Math.random()*this.ROUGHNESS))*(max_depth-curr_depth)*this.HILLINESS);
+            offset);
 
         // Launch recursion
         for (var i = 0; i < 4; i++)
@@ -166,3 +175,5 @@ var Terrain = {
 
     }
 };
+
+
