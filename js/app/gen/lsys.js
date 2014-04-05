@@ -85,9 +85,6 @@ LSystem.prototype.build = function(debug) {
 };
 
 LSystem.prototype.checkRule = function(production) {
-    // Do nothing if an action
-    if (production instanceof LSystem.Production == false) return [production];
-
     // Must be production
     for (var i = 0; i < this.rule_table.rules.length; i++) {
         var rule = this.rule_table.rules[i];
@@ -109,6 +106,7 @@ LSystem.prototype.checkRule = function(production) {
 
         }
     }
+    // If no match, return self
     return [production];
 
 }
@@ -142,7 +140,7 @@ LSystem.prototype.printSystem = function() {
         }
         // Assumed to be Turtle.Action DANGER CAPTAIN DANGER
         else {
-            output=output.concat(this.system[i].f.name + '(' + this.system[i].t + ') ');
+            output=output.concat(this.system[i].f.name + '(' + this.system[i].args[0] + ') ');
 
         }
     }

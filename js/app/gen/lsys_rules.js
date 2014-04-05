@@ -51,10 +51,65 @@ function HondaTree(t) {
 
         ])
     ];
-
     LSystem.RuleSet.call(this, consts, initial, rules);
 
-}
-
+};
 HondaTree.prototype = new LSystem.RuleSet();
 HondaTree.prototype.constructor = HondaTree;
+
+function TernaryTree(t) {
+    var consts = {D_1: 180 * (Math.PI / 180),
+                D_2: 252 * (Math.PI / 180),
+                A: 36  * (Math.PI / 180), L_R: 1.070, V_R: 1.732};
+    var initial = [
+        new Turtle.Action(t._set, 1),
+        new Turtle.Action(t._F, 200),
+        new Turtle.Action(t._roll, Math.PI/4),
+        new LSystem.Production('A', null, null)
+
+    ];
+    var rules = [
+        new LSystem.Rule('A', function() {return true;}, [
+            new Turtle.Action(t._set, null,
+                function(args, consts) {this.args = [consts.V_R]}),
+            new Turtle.Action(t._F, 50),
+            new Turtle.Action(t._push),
+            new Turtle.Action(t._pitch, null,
+                function(args, consts) {this.args = [consts.A];}),
+            new Turtle.Action(t._F, 50),
+            new LSystem.Production('A'),
+            new Turtle.Action(t._pop),
+            new Turtle.Action(t._roll, null,
+                function(args, consts) {this.args = [consts.D_1];}),
+            new Turtle.Action(t._push),
+            new Turtle.Action(t._pitch, null,
+                function(args, consts) {this.args = [consts.A];}),
+            new Turtle.Action(t._F, 50),
+            new LSystem.Production('A'),
+            new Turtle.Action(t._pop),
+            new Turtle.Action(t._roll, null,
+                function(args, consts) {this.args = [consts.D_2]}),
+            new Turtle.Action(t._push),
+            new Turtle.Action(t._pitch, null,
+                function(args, consts) {this.args = [consts.A];}),
+            new Turtle.Action(t._F, 50),
+            new LSystem.Production('A'),
+            new Turtle.Action(t._pop)
+
+        ]),
+        new LSystem.Rule('_F', function() {return true;}, [
+            new Turtle.Action(t._F, null,
+                function(args, consts) {this.args = [args[0] * consts.L_R];})
+
+        ]),
+        new LSystem.Rule('_set', function() {return true;}, [
+            new Turtle.Action(t._set, null,
+                function(args, consts) {this.args = [args[0]*consts.V_R]})
+
+        ])
+    ];
+    LSystem.RuleSet.call(this, consts, initial, rules);
+
+};
+TernaryTree.prototype = new LSystem.RuleSet();
+TernaryTree.prototype.constructor = TernaryTree;
