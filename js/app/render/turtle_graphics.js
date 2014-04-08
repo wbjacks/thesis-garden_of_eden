@@ -74,7 +74,7 @@ Turtle.prototype._F = function _F(time) {
     mat_f.multiply(mat_fs);
     mesh.applyMatrix(mat_f);
 
-    scene.add(mesh);
+    this.add(mesh);
 
     // Move turtle to new position
     this.position.add(heading.multiplyScalar(time*this.rate));
@@ -189,6 +189,9 @@ Turtle.prototype.run = function(actions) {
         }
     }
     // Consider resetting position?
+    this.position.set(0,0,0);
+    this.rotation.set(0,0,0);
+    this.scene.add(this);
 
 };
 
