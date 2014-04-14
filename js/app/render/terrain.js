@@ -15,8 +15,8 @@ function randomNormal() {
 }
 
 var Terrain = {
-    length: 100,
-    height: 100,
+    length: 300,
+    height: 300,
     resolution: 1,
     ROUGHNESS: 10,
     H: 0.5, 
@@ -25,11 +25,10 @@ var Terrain = {
     HILLINESS: 0.1,
     // This could almost certainly be more OO- have a "map" parameter?
     // have the object represent the actual mesh?
-    build: function(scene, camera) {
+    build: function() {
         var height_array = [];
         var sub_square = [];
-        this.mpd(height_array, 0, 7, sub_square);
-        console.log(height_array);
+        this.mpd(height_array, 0, 9, sub_square);
         height_array = [].concat.apply([], height_array);
 
         // Geometry for floor is a plane with specified resolution
@@ -39,9 +38,12 @@ var Terrain = {
                 (this.height-1) / this.resolution,
                 (this.length-1) / this.resolution);
 
+        // Rotate...
+        map_geometry.applyMatrix(new THREE.Matrix4().makeRotationX(-Math.PI / 2));
+
         // Add height data to geometry
         for (var i = 0; i < map_geometry.vertices.length; i++) {
-            map_geometry.vertices[i].z = height_array[i];
+            map_geometry.vertices[i].y = height_array[i];
 
         }
         map_geometry.computeFaceNormals();
@@ -57,17 +59,19 @@ var Terrain = {
 
         // Construct plane and add to scene
         var plane = new THREE.Mesh(map_geometry, material);
-        plane.castShadow = true;
-        plane.reveiveShadow = true;
-        scene.add(plane);
+        plane.doubleSided = true;
+        //plane.castShadow = true;
+        //plane.reveiveShadow = true;
 
         // Add lights
-        scene.add(new THREE.AmbientLight(0x111111));
+        //scene.add(new THREE.AmbientLight(0x111111));
 
-        var light = new THREE.DirectionalLight(0xffffff, 1);
-        light.shadowCameraVisible = true;
-        light.position.set(0,300,400);
-        scene.add(light);
+        //var light = new THREE.DirectionalLight(0xffffff, 1);
+        //light.shadowCameraVisible = true;
+        //light.position.set(0,300,400);
+        //scene.add(light);
+
+        return plane;
 
     },
     // geometry is the entire map
@@ -104,8 +108,6 @@ var Terrain = {
                 (this.MAX_HEIGHT-this.MIN_HEIGHT)*Math.random();
             geometry[this.length-1][this.height-1] = this.MIN_HEIGHT +
                 (this.MAX_HEIGHT-this.MIN_HEIGHT)*Math.random();
-
-            console.log(geometry);
 
         }
 
