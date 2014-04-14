@@ -1,0 +1,122 @@
+\documentclass{article}
+    \title{Thesis Proposal: Garden of Eden}
+    \author{William B. Jackson}
+    \date{February 5, 2014}
+
+    \newcommand{\tab}{\hspace*{2em}}
+
+    \usepackage[letterpaper]{geometry}
+
+\begin{document}
+    \maketitle
+    \section{Abstract}
+\tab Garden of Eden (GoE) is an exercise in procedural generation of lifelike
+worlds. Using parallelized computations, it randomly generates a forest scene of
+realistically shaped and proportioned asymmetric trees on top of a basic
+topographical map. This map is then rendered in 3D, with support for user
+navigation. The end result of this project is a sort of game: a static rendering
+of a natural environment, exploring how humans find visual pleasure and meaning
+in virtual environments. The passive interaction of the user is vital to this
+simulation, as it reflects how one would observe a natural environment; ideally,
+the simulation would evoke similar reactions to the environment GoE seeks to
+emulate, thus exploring the concept of a “natural”, the distinction between real
+and virtual, and one's own sense of place.
+
+    \section{Problem}
+\tab Asymmetric trees are particularly interesting to render accurately. As
+opposed to symmetric trees, which can be probabilistically branched, asymmetric
+trees must more closely copy the actual growth process found in nature. Branches
+do not branch in mirroring directions, though they often sprout from a common
+fork. Branches tend to grow away from each other, though factors such as
+location of light, wind, and weather have their effects. Thus, the potential for
+parallel computing is large, as trees in the forest affect the growth of their
+neighbors. Terrain modeling is another problem, though one for which there is a
+fairly significant amount of research. Fractal techniques will be evaluated for
+their use in the creation of topographical maps, though other algorithms will
+have to be introduced if natural structures, such as bodies of water, will be
+generated.
+
+    \section{Topics of Research}
+\begin{enumerate}
+    \item \emph{Fractal landscapes}-Used to generate realistic terrain maps.
+Includes Fractional Brownian Motion and mutifractal generation techniques.
+    \item \emph{Computational optimization}- Generation must be reasonably
+quick, and rendering must be fast enough for dynamic interaction.
+    \item \emph{Feature generation}- Natural features such as water might
+require special rules.
+    \item \emph{Asymmetric tree generation}- The focus of the project will be in
+rendering geometrically believable trees. To this end, generation techniques
+will be examined in tandem to biological and physical growth rules.
+    \item \emph{Artistic Theory}- The metric of success with this project is
+ultimately the user experience: as I am trying to evoke emotional response in
+the user rather than attempting to generate any sort of mathematically or
+statistically verifiable response. As such, I will do some research in similar
+artistic projects of various media. There is a lot of literature on the concepts
+place and reality. I will also examine Chinese landscape paintings, which
+similarly explored one's perception of the natural world.
+\end{enumerate}
+
+    \section{Technologies}
+\begin{enumerate}
+    \item \emph{Graphics}- My goal is to display this in a browser, as it makes
+distribution of the software far simper. I will likely use three.js
+(www.threejs.org) to render GoE. Three.js uses WebGL, the browser version of
+OpenGL, to achieve 3D, hardware-accelerated graphics. While not as powerful as a
+native OpenGL app due to the overhead of running on a browser, it is
+nevertheless a powerful, and simple, option. Processing.js, which is also
+optimized with WebGL, is being considered as a back-up option.
+
+    \item \emph{Middleware}- I want to take advantage of native processing speed
+for the generation of the forests, so I need some sort of message passing
+protocol to inform the graphics end what to render. My plan here is to render
+from a JSON serialization of the tree data structures, which is then sent by
+HTTP to a node on the graphics application.
+
+    \item \emph{Backend}- Native code, ideally using a parallel protocol. Hadoop
+and OpenGL are considered for their distributed parallel processing, but GPU
+processing on a single host is a tempting option for ease of deployment.
+
+    \item \emph{Alternate option}- it might be possible to get appropriate
+render speeds by backgrounding the generation process and running the entire
+application as a web app. This would have the benefit of a much more streamlined
+deployment, as the user would only have to access the online canvas. Hadoop
+could be utilized in this solution for parallelization, but it would demand an
+increased load on the host server.
+
+    \item \emph{Second alternate option}- have the generation run as a
+Javascript program that would be automatically downloaded by the browser as the
+user accessed the web app, and would subsequently send an AJAX post to the
+server, in accordance to the proposed middleware. This would be a simpler and
+easier to distribute version of the initially proposed stack, as all client-side
+files would be automatically managed by the browser, but I am not sure that
+Javascript would provide the computation speed I desire for the scene
+generation.
+
+\end{enumerate}
+
+    \section{Prior Art}
+        \subsection{Terragen 3 (http://planetside.co.uk/products/terragen3)}
+\tab Terragen 3 is a proprietary tool for rendering and animating realistic
+natural environments. The suite is able to render photorealistic images and
+animations and comes in both a free and commercial version. Terragen is
+appropriate for generating static images and animations, but is not appropriate
+for dynamic interaction. It also allows the user a high level of control over 
+the generation, as the software is intended for designers and animators.
+
+        \subsection{Minecraft (https://minecraft.net/)}
+\tab Popular video game that includes significant and believable, though
+cartoonish, terrain generation, including biomes, elevation, and natural
+“features” like caves and chasms. Designed as a sandbox-style game that allows
+the user an almost infinite amount of control over the world in the form of
+creating and destroying world “blocks”. While the methods of procedural
+generation used in Minecraft will be examined, GoE is different in that there is
+no control over the appearance of the generated world. Additionally, there will
+be a greater focus placed on generating realistic trees.
+
+        \subsection{Proteus (http://www.visitproteus.com/)}
+\tab Another indie game that features a randomly-generated island. The feel of
+this game is similar to GoE in that the sole goal is exploration. Proteus,
+however, has a whimsically-styled world, whereas GoE will seek to evoke actual
+natural scenes.
+
+\end{document}
