@@ -13,10 +13,10 @@ function Terrain(size_degree, resolution) {
     this.length = Math.pow(2, size_degree)+1 || 257;
     this.height = Math.pow(2, size_degree)+1 || 257;
     this.resolution = 1;
-    this.ROUGHNESS = 100;
-    this.H = 0.7;
-    this.MAX_HEIGHT = 50;
-    this.MIN_HEIGHT = -50;
+    this.H = 0.8;
+    this.MAX_HEIGHT = this.length / 6;
+    this.MIN_HEIGHT = -this.MAX_HEIGHT;
+    this.OFFSET_WIDTH = this.MAX_HEIGHT - this.MIN_HEIGHT;
 
 };
 
@@ -26,108 +26,94 @@ function Terrain(size_degree, resolution) {
 // square is an array of indices
 // From wikipedia: Diamond square algorithm
 // Constants added from me
-Terrain.prototype.mpd = function(geometry, curr_depth, max_depth, square) {
-    // Check depth
-    // BASE CASE
-    if (curr_depth == max_depth)
-        return;
-
-    // Check initial case (render geometry)
-    if (curr_depth == 0) {
-        // Create geometry
-        for (var i = 0; i < this.length * this.resolution; i++) {
-            geometry[i] = [];
-            for (var j = 0; j < this.height * this.resolution; j++)
-                geometry[i][j] = 0;
-
-        }
-        // Create initial square
-        square = [[0,0], [this.length-1, 0], [0, this.height-1],
-            [this.length-1, this.height-1]];
-
-        // Set outside square to random height
-        geometry[0][0] = this.MIN_HEIGHT +
-            (this.MAX_HEIGHT-this.MIN_HEIGHT)*Math.random();
-        geometry[this.length-1][0] = this.MIN_HEIGHT +
-            (this.MAX_HEIGHT-this.MIN_HEIGHT)*Math.random();
-        geometry[0][this.height-1] = this.MIN_HEIGHT +
-            (this.MAX_HEIGHT-this.MIN_HEIGHT)*Math.random();
-        geometry[this.length-1][this.height-1] = this.MIN_HEIGHT +
-            (this.MAX_HEIGHT-this.MIN_HEIGHT)*Math.random();
+Terrain.prototype.mpd = function() {
+    // Create geometry
+    var geometry = [];
+    for (var i = 0; i < this.length * this.resolution; i++) {
+        geometry[i] = [];
+        for (var j = 0; j < this.height * this.resolution; j++)
+            geometry[i][j] = 0;
 
     }
 
-    // Recursive case
-    // If this could be done mathematically and then mapped to an array,
-    //  it would probably be much faster and definitely be prettier
-    // Find midpoint of given square, recurse on new squares
-    // If square is oriented perpendicular to axis
-    dx = Math.floor(0.5*(square[1][0] - square[0][0]));
-    dy = Math.floor(0.5*(square[2][1] - square[0][1]));
+    // Seed geometry
+    geometry[0][0] = this.MIN_HEIGHT +
+        (this.MAX_HEIGHT-this.MIN_HEIGHT)*Math.random();
+    geometry[this.length-1][0] = this.MIN_HEIGHT +
+        (this.MAX_HEIGHT-this.MIN_HEIGHT)*Math.random();
+    geometry[0][this.height-1] = this.MIN_HEIGHT +
+        (this.MAX_HEIGHT-this.MIN_HEIGHT)*Math.random();
+    geometry[this.length-1][this.height-1] = this.MIN_HEIGHT +
+        (this.MAX_HEIGHT-this.MIN_HEIGHT)*Math.random();
 
-    // Generate new squares, oriented starting at center and going ccw
-    var new_sq = [];
-    new_sq[0] = [square[0],
-                [square[0][0]+dx, square[0][1]],
-                [square[0][0], square[0][1]+dy],
-                [square[0][0]+dx, square[0][1]+dy]];
-    new_sq[1] = [[square[0][0]+dx, square[0][1]],
-                square[1],
-                [square[0][0]+dx, square[0][1]+dy],
-                [square[1][0], square[0][1]+dy]];
-    new_sq[2] = [[square[0][0], square[0][1]+dy],
-                [square[0][0]+dx, square[0][1]+dy],
-                square[2],
-                [square[0][0]+dx, square[2][1]]];
-    new_sq[3] = [[square[0][0]+dx, square[0][1]+dy],
-                [square[1][0], square[0][1]+dy],
-                [square[0][0]+dx, square[2][1]],
-                square[3]];
+    // Initial length and offset scale
+    var quad_length = this.length;
+    var scale = 1;
 
-    // Set geometry with linear interpolation
-    // North
-    geometry[new_sq[0][1][0]][new_sq[0][1][1]] =
-        0.5*(geometry[square[1][0]][square[1][1]] +
-        geometry[square[0][0]][square[0][1]]);
+    // Main loop- recommended instead of recursion
+    for (var quad_length = this.length-1;
+            quad_length > 1; quad_length = Math.floor(quad_length/2))
+    {
+        // Square step
+        var middle = Math.floor(quad_length/2)
+        for (var i = 0; i < this.height-1; i += quad_length) {
+            for (var j = 0; j < this.length-1; j += quad_length) {
+                var rand_offset = ((0.5*this.OFFSET_WIDTH) -
+                    this.OFFSET_WIDTH*Math.random()) * scale;
+                var lerp = 0.25 * (geometry[i][j] +
+                    geometry[i+quad_length][j] +
+                    geometry[i][j+quad_length] +
+                    geometry[i+quad_length][j+quad_length]);
+                geometry[i+middle][j+middle] += lerp+rand_offset;
 
-    // West
-    geometry[new_sq[0][2][0]][new_sq[0][2][1]] =
-        0.5*(geometry[square[0][0]][square[0][1]] +
-        geometry[square[2][0]][square[2][1]]);
+            }
+        }
+        // Diamond step: For each previous midpoint calculated, offset by lerp
+        // of surrounding diamond and random offset
+        for (var i = 0; i < this.height-1; i += quad_length) {
+            for (var j = 0; j < this.length-1; j += quad_length) {
+                // For every previous midpoint, there exists 4 diamonds
+                // i = 0 add w
+                // j = 0 add n
+                // else s and e
+                // Centers is a list of diamond centers to be affected for this
+                // i/j square
+                var centers = [
+                    [i+quad_length, j+middle],
+                    [i+middle, j+quad_length]
+                ]
+                if (i == 0) centers.concat([i, j+middle]);
+                if (j == 0) centers.concat([i+middle, j]);
 
-    // East
-    geometry[new_sq[1][3][0]][new_sq[1][3][1]] =
-        0.5*(geometry[square[1][0]][square[1][1]] +
-        geometry[square[3][0]][square[3][1]]);
+                // Modulate centers
+                for (var c = 0; c < centers.length; c++) {
+                    var ci = centers[c][0];
+                    var cj = centers[c][1];
+                    var rand_offset = ((0.5*this.OFFSET_WIDTH) -
+                        this.OFFSET_WIDTH*Math.random()) * scale;
 
-    // South
-    geometry[new_sq[2][3][0]][new_sq[2][3][1]] =
-        0.5*(geometry[square[2][0]][square[2][1]] +
-        geometry[square[3][0]][square[3][1]]);
+                    // Calculate lerp, accounting for index out of bounds
+                    var lerp = geometry[ci][cj-middle] || 0; // n
+                    lerp += geometry[ci][cj+middle] || 0; // s
+                    if (geometry[ci+middle] != null) lerp += geometry[ci+middle][cj]; // e
+                    if (geometry[c-+middle] != null) lerp += geometry[ci-middle][cj]; // w
+                    lerp *= 0.25;
 
-    // Center- play with random factor!
-    var offset = randomNormal() * this.ROUGHNESS *
-        Math.pow(2, -this.H * curr_depth);
-    offset = 0.5 - offset;
-    //var offset = randomNormal() * this.ROUGHNESS *
-    //    Math.pow(2, -this.H * curr_depth);
-    geometry[new_sq[0][3][0]][new_sq[0][3][1]] =
-        0.25*(geometry[square[0][0]][square[0][1]] +
-        geometry[square[1][0]][square[1][1]] +
-        geometry[square[2][0]][square[2][1]] +
-        geometry[square[3][0]][square[3][1]] +
-        offset);
+                    geometry[ci][cj] += lerp+rand_offset;
 
-    // Launch recursion
-    for (var i = 0; i < 4; i++)
-        this.mpd(geometry, curr_depth+1, max_depth, new_sq[i]);
+                }
+            }
+        }
+        // Reduce random value
+        scale *= Math.pow(2, -this.H);
+
+    }
+    return geometry;
 
 }
 
 Terrain.prototype.build = function() {
-    var height_array = [];
-    var sub_square = [];
-    this.mpd(height_array, 0, 8, sub_square);
+    var height_array = this.mpd();
     height_array = [].concat.apply([], height_array);
 
     // Geometry for floor is a plane with specified resolution

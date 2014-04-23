@@ -19,7 +19,7 @@ function Turtle(sc, mat, rad) {//, loc, U, L, H) {
     this.rate = 1;
 
     // Radius of drawn cylinder
-    this.width = rad;
+    this.width = rad || 0.25;
 
     // THREE.js stuff
     this.scene = sc;

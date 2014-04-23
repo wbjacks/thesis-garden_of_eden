@@ -67,7 +67,7 @@ light.position.set(0,800,0);
 scene.add(light);
 
 // Add fog
-scene.fog = new THREE.FogExp2(0x996633, 0.008);
+//scene.fog = new THREE.FogExp2(0x996633, 0.008);
 
 // Generate Skybox
 var urls = [
@@ -100,7 +100,7 @@ var skybox_mesh = new THREE.Mesh(new THREE.CubeGeometry(10000, 10000, 10000), sk
 scene.add(skybox_mesh);
 
 // Construct terrain
-var terrain = new Terrain(9);
+var terrain = new Terrain(8);
 var floor = terrain.build();
 scene.add(floor);
 
