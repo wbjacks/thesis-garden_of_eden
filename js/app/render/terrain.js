@@ -13,9 +13,9 @@ function Terrain(size_degree, resolution) {
     this.length = Math.pow(2, size_degree)+1 || 257;
     this.height = Math.pow(2, size_degree)+1 || 257;
     this.resolution = 1;
-    this.H = 0.8;
-    this.MAX_HEIGHT = this.length / 5;
-    this.MIN_HEIGHT = -this.MAX_HEIGHT;
+    this.H = 1;
+    this.MAX_HEIGHT = 2*(this.length / 6);
+    this.MIN_HEIGHT = 0;
     this.OFFSET_WIDTH = this.MAX_HEIGHT - this.MIN_HEIGHT;
 
 };
@@ -189,7 +189,7 @@ Terrain.prototype.build = function() {
 
     // Build material
     var material = new THREE.MeshLambertMaterial({
-        color: 0x996633,
+        color: 0x457D0E,
         ambient: 0x666633,
         //wireframe: true
     });

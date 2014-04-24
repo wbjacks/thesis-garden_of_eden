@@ -17,7 +17,7 @@ function render() {
     // Check if on an object
     controls.isOnObject(false);
     ray.ray.origin.copy(controls.getObject().position);
-    ray.ray.origin.y -= 7;
+    ray.ray.origin.y -= CAMERA_HEIGHT;
 
     // ray works but check pointerlock source for isOnObject and compare to FPC
 
@@ -37,7 +37,7 @@ function render() {
 
 }
 
-var CAMERA_HEIGHT = 10;
+var CAMERA_HEIGHT = 3;
 
 
 // Use three.js to initialize scene, camera, and renderer...
@@ -100,9 +100,24 @@ var skybox_mesh = new THREE.Mesh(new THREE.CubeGeometry(10000, 10000, 10000), sk
 scene.add(skybox_mesh);
 
 // Construct terrain
-var terrain = new Terrain(5);
+var terrain = new Terrain(8);
 var floor = terrain.build();
 scene.add(floor);
+
+// Add tree
+var tree_material = new THREE.MeshLambertMaterial({
+    color: 0x996633,
+    ambient: 0x666633,
+
+});
+
+var t = new Turtle(scene, tree_material, 0.25);
+var tree = new TernaryTree(t);
+var lsys = new LSystem(tree);
+lsys.MAX_DEPTH = 6; // limit depth
+lsys.build();
+t.run(lsys.system);
+t.drop(floor);
 
 // Add controls
 var controls = new THREE.PointerLockControls(camera);
@@ -113,9 +128,9 @@ scene.add(control_obj);
 
 var lastTime = performance.now();
 
-ray = new THREE.Raycaster();
+var ray = new THREE.Raycaster();
 ray.ray.direction.set(0, -1, 0);
-ray.near = 1;
+ray.near = 0.1;
 ray.far = 100;
 
 // Render

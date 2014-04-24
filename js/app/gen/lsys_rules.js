@@ -60,10 +60,10 @@ HondaTree.prototype.constructor = HondaTree;
 function TernaryTree(t) {
     var consts = {D_1: 180 * (Math.PI / 180),
                 D_2: 252 * (Math.PI / 180),
-                A: 36  * (Math.PI / 180), L_R: 1.070, V_R: 1.732};
+                A: 36  * (Math.PI / 180), L_R: 1.070, V_R: 1.732, R_I: 0.01};
     var initial = [
-        new Turtle.Action(t._set, 1),
-        new Turtle.Action(t._F, 200),
+        new Turtle.Action(t._set, 1/100),
+        new Turtle.Action(t._F, 200/100),
         new Turtle.Action(t._roll, Math.PI/4),
         new LSystem.Production('A', null, null)
 
@@ -71,12 +71,12 @@ function TernaryTree(t) {
     var rules = [
         new LSystem.Rule('A', function() {return true;}, [
             new Turtle.Action(t._set, null,
-                function(args, consts) {this.args = [consts.V_R]}),
-            new Turtle.Action(t._F, 50),
+                function(args, consts) {this.args = [consts.R_I]}),
+            new Turtle.Action(t._F, 50/100),
             new Turtle.Action(t._push),
             new Turtle.Action(t._pitch, null,
                 function(args, consts) {this.args = [consts.A];}),
-            new Turtle.Action(t._F, 50),
+            new Turtle.Action(t._F, 50/100),
             new LSystem.Production('A'),
             new Turtle.Action(t._pop),
             new Turtle.Action(t._roll, null,
@@ -84,7 +84,7 @@ function TernaryTree(t) {
             new Turtle.Action(t._push),
             new Turtle.Action(t._pitch, null,
                 function(args, consts) {this.args = [consts.A];}),
-            new Turtle.Action(t._F, 50),
+            new Turtle.Action(t._F, 50/100),
             new LSystem.Production('A'),
             new Turtle.Action(t._pop),
             new Turtle.Action(t._roll, null,
@@ -92,7 +92,7 @@ function TernaryTree(t) {
             new Turtle.Action(t._push),
             new Turtle.Action(t._pitch, null,
                 function(args, consts) {this.args = [consts.A];}),
-            new Turtle.Action(t._F, 50),
+            new Turtle.Action(t._F, 50/100),
             new LSystem.Production('A'),
             new Turtle.Action(t._pop)
 
