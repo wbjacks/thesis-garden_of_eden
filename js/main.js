@@ -78,7 +78,7 @@ scene.add(light);
 
 // Add fog
 //scene.fog = new THREE.FogExp2(0x996633, 0.008);
-scene.fog = new THREE.FogExp2(0x658ab1, 0.008);
+scene.fog = new THREE.FogExp2(0x658ab1, 0.03);
 //scene.fog = new THREE.FogExp2(0xffffff, 0.01);
 
 // Generate Skybox
@@ -156,5 +156,22 @@ ray.ray.direction.set(0, -1, 0);
 ray.near = 0.1;
 ray.far = 100;
 
+// Handle document stuff
+function onWindowResize() {
+    var windowHalfX = window.innerWidth / 2;
+    var windowHalfY = window.innerHeight / 2;
+
+    windowHalfX = window.innerWidth / 2;
+    windowHalfY = window.innerHeight / 2;
+
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+
+    renderer.setSize( window.innerWidth, window.innerHeight );
+
+}
+window.addEventListener( 'resize', onWindowResize, false );
+
 // Render
 render();
+
