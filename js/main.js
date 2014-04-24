@@ -100,7 +100,7 @@ var skybox_mesh = new THREE.Mesh(new THREE.CubeGeometry(10000, 10000, 10000), sk
 scene.add(skybox_mesh);
 
 // Construct terrain
-var terrain = new Terrain(8);
+var terrain = new Terrain(5);
 var floor = terrain.build();
 scene.add(floor);
 
