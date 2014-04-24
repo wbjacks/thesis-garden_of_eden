@@ -82,8 +82,8 @@ Terrain.prototype.mpd = function() {
                     [i+quad_length, j+middle],
                     [i+middle, j+quad_length]
                 ]
-                if (i == 0) centers.concat([i, j+middle]); 
-                if (j == 0) centers.concat([i+middle, j]);
+                if (i == 0) centers.push([i, j+middle]); 
+                if (j == 0) centers.push([i+middle, j]);
 
                 // Modulate centers
                 for (var c = 0; c < centers.length; c++) {
@@ -97,7 +97,7 @@ Terrain.prototype.mpd = function() {
                     lerp += geometry[ci][cj+middle] || 0; // e
                     if (geometry[ci+middle] != null)
                         lerp += geometry[ci+middle][cj]; // n
-                    if (geometry[c-+middle] != null)
+                    if (geometry[ci-middle] != null)
                         lerp += geometry[ci-middle][cj]; // s
                     lerp *= 0.25;
 
