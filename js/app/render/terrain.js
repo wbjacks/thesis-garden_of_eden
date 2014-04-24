@@ -14,7 +14,7 @@ function Terrain(size_degree, resolution) {
     this.height = Math.pow(2, size_degree)+1 || 257;
     this.resolution = 1;
     this.H = 0.8;
-    this.MAX_HEIGHT = this.length / 6;
+    this.MAX_HEIGHT = this.length / 5;
     this.MIN_HEIGHT = -this.MAX_HEIGHT;
     this.OFFSET_WIDTH = this.MAX_HEIGHT - this.MIN_HEIGHT;
 
@@ -73,8 +73,8 @@ Terrain.prototype.mpd = function() {
         for (var i = 0; i < this.height-1; i += quad_length) {
             for (var j = 0; j < this.length-1; j += quad_length) {
                 // For every previous midpoint, there exists 4 diamonds
-                // i = 0 add w
-                // j = 0 add n
+                // i = 0 add n
+                // j = 0 add w
                 // else s and e
                 // Centers is a list of diamond centers to be affected for this
                 // i/j square
@@ -82,7 +82,7 @@ Terrain.prototype.mpd = function() {
                     [i+quad_length, j+middle],
                     [i+middle, j+quad_length]
                 ]
-                if (i == 0) centers.concat([i, j+middle]);
+                if (i == 0) centers.concat([i, j+middle]); 
                 if (j == 0) centers.concat([i+middle, j]);
 
                 // Modulate centers
@@ -93,10 +93,12 @@ Terrain.prototype.mpd = function() {
                         this.OFFSET_WIDTH*Math.random()) * scale;
 
                     // Calculate lerp, accounting for index out of bounds
-                    var lerp = geometry[ci][cj-middle] || 0; // n
-                    lerp += geometry[ci][cj+middle] || 0; // s
-                    if (geometry[ci+middle] != null) lerp += geometry[ci+middle][cj]; // e
-                    if (geometry[c-+middle] != null) lerp += geometry[ci-middle][cj]; // w
+                    var lerp = geometry[ci][cj-middle] || 0; // w
+                    lerp += geometry[ci][cj+middle] || 0; // e
+                    if (geometry[ci+middle] != null)
+                        lerp += geometry[ci+middle][cj]; // n
+                    if (geometry[c-+middle] != null)
+                        lerp += geometry[ci-middle][cj]; // s
                     lerp *= 0.25;
 
                     geometry[ci][cj] += lerp+rand_offset;
@@ -112,8 +114,59 @@ Terrain.prototype.mpd = function() {
 
 }
 
+Terrain.prototype.smooth = function(geometry) {
+    // Construct kernel
+    var kernel = function(sigma) {
+        // Gaussian filter
+        var ret = [];
+        var size = Math.floor(sigma*3); // from NVidia implementation
+        for (var i = 0; i < size; i++) {
+            ret[i] = [];
+            for (var j = 0; j < size; j++) {
+                var x = j - Math.floor(size/2);
+                var y = Math.floor(size/2) - i;
+                ret[i][j] = (1 / (2*Math.PI*sigma*sigma)) *
+                    Math.exp(-(x*x + y*y)/(2*sigma*sigma));
+
+            }
+        }
+        return ret;
+
+    }
+
+    var apply = function(i, j, k, g) {
+        // Won't hit edges
+        if (i - Math.floor(k.length / 2) >= 0
+            && i + Math.floor(k.length / 2) <= g.length - 1
+            && j - Math.floor(k.length / 2) >= 0
+            && j + Math.floor(k.length / 2) <= g.length - 1)
+        {
+            sum = 0;
+            for (var ii = 0; ii < k.length; ii++) {
+                for (var jj = 0; jj < k.length; jj++) {
+                    var yy = Math.floor(k.length / 2) - ii;
+                    var xx = jj - Math.floor(k.length / 2);
+                    sum += g[i+xx][j+yy] * k[ii][jj];
+
+                }
+            }
+            g[i][j] = sum;// / k.length*k.length;
+
+        }
+    }
+    
+    var k = kernel(1);
+    for (var i = 0; i < geometry.length; i++) {
+        for (var j = 0; j < geometry.length; j++) {
+            apply(i,j,k,geometry);
+
+        }
+    }
+}
+
 Terrain.prototype.build = function() {
     var height_array = this.mpd();
+    this.smooth(height_array);
     height_array = [].concat.apply([], height_array);
 
     // Geometry for floor is a plane with specified resolution
