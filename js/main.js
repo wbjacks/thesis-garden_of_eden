@@ -15,14 +15,14 @@ function render() {
     var time = performance.now();
 
     // Check if on an object
-    controls.isOnObject(false);
     ray.ray.origin.copy(controls.getObject().position);
-    ray.ray.origin.y -= CAMERA_HEIGHT;
 
     // ray works but check pointerlock source for isOnObject and compare to FPC
 
     var intersections = ray.intersectObject(floor);
 
+    /* // With jump
+    controls.isOnObject(false);
     if ( intersections.length > 0 ) {
         var distance = intersections[0].distance;
         if (distance > 0 && distance <= CAMERA_HEIGHT) {
@@ -32,12 +32,22 @@ function render() {
 
         }
     }
+    */
+    // Disables jump
+    controls.isOnObject(true);
+    if ( intersections.length > 0 ) {
+        var distance = intersections[0].distance;
+        var pos = controls.getObject().position;
+        pos.setY(pos.y + (CAMERA_HEIGHT - distance));
+
+    }
+
     controls.update(time-lastTime);
     lastTime = time;
 
 }
 
-var CAMERA_HEIGHT = 3;
+var CAMERA_HEIGHT = 2;
 
 
 // Use three.js to initialize scene, camera, and renderer...
@@ -68,6 +78,8 @@ scene.add(light);
 
 // Add fog
 //scene.fog = new THREE.FogExp2(0x996633, 0.008);
+scene.fog = new THREE.FogExp2(0x658ab1, 0.008);
+//scene.fog = new THREE.FogExp2(0xffffff, 0.01);
 
 // Generate Skybox
 var urls = [
@@ -79,6 +91,17 @@ var urls = [
     'img/sky/nz.png'
 
 ];
+/*
+var urls = [
+    'img/test/nx.png',
+    'img/test/px.png',
+    'img/test/py.png',
+    'img/test/ny.png',
+    'img/test/pz.png',
+    'img/test/nz.png'
+
+];
+*/
 
 var sky_map = THREE.ImageUtils.loadTextureCube(urls);
 sky_map.format = THREE.RGBFormat;
