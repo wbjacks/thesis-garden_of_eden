@@ -2,178 +2,202 @@
 //
 //  REFERENCES:
 //  http://blog.thematicmapping.org/2013/10/terrain-building-with-threejs.html
-//
-// TODO:
-//  + Improve module, as it is not very OO
-//  + Switched from Require.js, but kept in this weird module-type coding where
-//  files basically just give you objects. We'll see if it works out; if not,
-//  I'll probably just use the weird bootstrapped Require.js
+//  http://www.gameprogrammer.com/fractal.html#diamond
 
 // From http://rosettacode.org/wiki/Random_numbers#JavaScript
 function randomNormal() {
   return Math.cos(2 * Math.PI * Math.random()) * Math.sqrt(-2 * Math.log(Math.random()))
 }
 
-var Terrain = {
-    length: 100,
-    height: 100,
-    resolution: 1,
-    ROUGHNESS: 10,
-    H: 0.5, 
-    MAX_HEIGHT: 80,
-    MIN_HEIGHT: -10,
-    HILLINESS: 0.1,
-    // This could almost certainly be more OO- have a "map" parameter?
-    // have the object represent the actual mesh?
-    build: function(scene, camera) {
-        var height_array = [];
-        var sub_square = [];
-        this.mpd(height_array, 0, 7, sub_square);
-        console.log(height_array);
-        height_array = [].concat.apply([], height_array);
+function Terrain(size_degree, resolution) {
+    this.length = Math.pow(2, size_degree)+1 || 257;
+    this.height = Math.pow(2, size_degree)+1 || 257;
+    this.resolution = 1;
+    this.H = 1;
+    this.MAX_HEIGHT = 2*(this.length / 6);
+    this.MIN_HEIGHT = 0;
+    this.OFFSET_WIDTH = this.MAX_HEIGHT - this.MIN_HEIGHT;
 
-        // Geometry for floor is a plane with specified resolution
-        var map_geometry = new THREE.PlaneGeometry(
-                this.height,
-                this.length,
-                (this.height-1) / this.resolution,
-                (this.length-1) / this.resolution);
-
-        // Add height data to geometry
-        for (var i = 0; i < map_geometry.vertices.length; i++) {
-            map_geometry.vertices[i].z = height_array[i];
-
-        }
-        map_geometry.computeFaceNormals();
-        map_geometry.computeVertexNormals();
-
-        // Build material
-        // try 
-        var material = new THREE.MeshLambertMaterial({
-            color: 0x996633,
-            ambient: 0x666633,
-            //wireframe: true
-        });
-
-        // Construct plane and add to scene
-        var plane = new THREE.Mesh(map_geometry, material);
-        plane.castShadow = true;
-        plane.reveiveShadow = true;
-        scene.add(plane);
-
-        // Add lights
-        scene.add(new THREE.AmbientLight(0x111111));
-
-        var light = new THREE.DirectionalLight(0xffffff, 1);
-        light.shadowCameraVisible = true;
-        light.position.set(0,300,400);
-        scene.add(light);
-
-    },
-    // geometry is the entire map
-    // curr_depth is the current depth
-    // max_depth is the maximum depth (-1 for until end)
-    // square is an array of indices
-    // From wikipedia: Diamond square algorithm
-    // Constants added from me
-    mpd: function(geometry, curr_depth, max_depth, square) {
-        // Check depth
-        // BASE CASE
-        if (curr_depth == max_depth)
-            return;
-
-        // Check initial case (render geometry)
-        if (curr_depth == 0) {
-            // Create geometry
-            for (var i = 0; i < this.length * this.resolution; i++) {
-                geometry[i] = [];
-                for (var j = 0; j < this.height * this.resolution; j++)
-                    geometry[i][j] = 0;
-
-            }
-            // Create initial square
-            square = [[0,0], [this.length-1, 0], [0, this.height-1],
-                [this.length-1, this.height-1]];
-
-            // Set outside square to random height
-            geometry[0][0] = this.MIN_HEIGHT +
-                (this.MAX_HEIGHT-this.MIN_HEIGHT)*Math.random();
-            geometry[this.length-1][0] = this.MIN_HEIGHT +
-                (this.MAX_HEIGHT-this.MIN_HEIGHT)*Math.random();
-            geometry[0][this.height-1] = this.MIN_HEIGHT +
-                (this.MAX_HEIGHT-this.MIN_HEIGHT)*Math.random();
-            geometry[this.length-1][this.height-1] = this.MIN_HEIGHT +
-                (this.MAX_HEIGHT-this.MIN_HEIGHT)*Math.random();
-
-            console.log(geometry);
-
-        }
-
-        // Recursive case
-        // If this could be done mathematically and then mapped to an array,
-        //  it would probably be much faster and definitely be prettier
-        // Find midpoint of given square, recurse on new squares
-        // If square is oriented perpendicular to axis
-        dx = Math.floor(0.5*(square[1][0] - square[0][0]));
-        dy = Math.floor(0.5*(square[2][1] - square[0][1]));
-
-        // Generate new squares, oriented starting at center and going ccw
-        var new_sq = [];
-        new_sq[0] = [square[0],
-                    [square[0][0]+dx, square[0][1]],
-                    [square[0][0], square[0][1]+dy],
-                    [square[0][0]+dx, square[0][1]+dy]];
-        new_sq[1] = [[square[0][0]+dx, square[0][1]],
-                    square[1],
-                    [square[0][0]+dx, square[0][1]+dy],
-                    [square[1][0], square[0][1]+dy]];
-        new_sq[2] = [[square[0][0], square[0][1]+dy],
-                    [square[0][0]+dx, square[0][1]+dy],
-                    square[2],
-                    [square[0][0]+dx, square[2][1]]];
-        new_sq[3] = [[square[0][0]+dx, square[0][1]+dy],
-                    [square[1][0], square[0][1]+dy],
-                    [square[0][0]+dx, square[2][1]],
-                    square[3]];
-
-        // Set geometry with linear interpolation
-        // North
-        geometry[new_sq[0][1][0]][new_sq[0][1][1]] =
-            0.5*(geometry[square[1][0]][square[1][1]] +
-            geometry[square[0][0]][square[0][1]]);
-
-        // West
-        geometry[new_sq[0][2][0]][new_sq[0][2][1]] =
-            0.5*(geometry[square[0][0]][square[0][1]] +
-            geometry[square[2][0]][square[2][1]]);
-
-        // East
-        geometry[new_sq[1][3][0]][new_sq[1][3][1]] =
-            0.5*(geometry[square[1][0]][square[1][1]] +
-            geometry[square[3][0]][square[3][1]]);
-
-        // South
-        geometry[new_sq[2][3][0]][new_sq[2][3][1]] =
-            0.5*(geometry[square[2][0]][square[2][1]] +
-            geometry[square[3][0]][square[3][1]]);
-
-        // Center- play with random factor!
-        var offset = randomNormal() * this.ROUGHNESS *
-            Math.pow(2, -this.H * curr_depth);
-        //var offset = randomNormal() * this.ROUGHNESS *
-        //    Math.pow(2, -this.H * curr_depth);
-        geometry[new_sq[0][3][0]][new_sq[0][3][1]] =
-            0.25*(geometry[square[0][0]][square[0][1]] +
-            geometry[square[1][0]][square[1][1]] +
-            geometry[square[2][0]][square[2][1]] +
-            geometry[square[3][0]][square[3][1]] +
-            offset);
-
-        // Launch recursion
-        for (var i = 0; i < 4; i++)
-            this.mpd(geometry, curr_depth+1, max_depth, new_sq[i]);
-
-    }
 };
 
+// geometry is the entire map
+// curr_depth is the current depth
+// max_depth is the maximum depth (-1 for until end)
+// square is an array of indices
+// From wikipedia: Diamond square algorithm
+// Constants added from me
+Terrain.prototype.mpd = function() {
+    // Create geometry
+    var geometry = [];
+    for (var i = 0; i < this.length * this.resolution; i++) {
+        geometry[i] = [];
+        for (var j = 0; j < this.height * this.resolution; j++)
+            geometry[i][j] = 0;
 
+    }
+
+    // Seed geometry
+    geometry[0][0] = this.MIN_HEIGHT +
+        (this.MAX_HEIGHT-this.MIN_HEIGHT)*Math.random();
+    geometry[this.length-1][0] = this.MIN_HEIGHT +
+        (this.MAX_HEIGHT-this.MIN_HEIGHT)*Math.random();
+    geometry[0][this.height-1] = this.MIN_HEIGHT +
+        (this.MAX_HEIGHT-this.MIN_HEIGHT)*Math.random();
+    geometry[this.length-1][this.height-1] = this.MIN_HEIGHT +
+        (this.MAX_HEIGHT-this.MIN_HEIGHT)*Math.random();
+
+    // Initial length and offset scale
+    var quad_length = this.length;
+    var scale = 1;
+
+    // Main loop- recommended instead of recursion
+    for (var quad_length = this.length-1;
+            quad_length > 1; quad_length = Math.floor(quad_length/2))
+    {
+        // Square step
+        var middle = Math.floor(quad_length/2)
+        for (var i = 0; i < this.height-1; i += quad_length) {
+            for (var j = 0; j < this.length-1; j += quad_length) {
+                var rand_offset = ((0.5*this.OFFSET_WIDTH) -
+                    this.OFFSET_WIDTH*Math.random()) * scale;
+                var lerp = 0.25 * (geometry[i][j] +
+                    geometry[i+quad_length][j] +
+                    geometry[i][j+quad_length] +
+                    geometry[i+quad_length][j+quad_length]);
+                geometry[i+middle][j+middle] += lerp+rand_offset;
+
+            }
+        }
+        // Diamond step: For each previous midpoint calculated, offset by lerp
+        // of surrounding diamond and random offset
+        for (var i = 0; i < this.height-1; i += quad_length) {
+            for (var j = 0; j < this.length-1; j += quad_length) {
+                // For every previous midpoint, there exists 4 diamonds
+                // i = 0 add n
+                // j = 0 add w
+                // else s and e
+                // Centers is a list of diamond centers to be affected for this
+                // i/j square
+                var centers = [
+                    [i+quad_length, j+middle],
+                    [i+middle, j+quad_length]
+                ]
+                if (i == 0) centers.push([i, j+middle]); 
+                if (j == 0) centers.push([i+middle, j]);
+
+                // Modulate centers
+                for (var c = 0; c < centers.length; c++) {
+                    var ci = centers[c][0];
+                    var cj = centers[c][1];
+                    var rand_offset = ((0.5*this.OFFSET_WIDTH) -
+                        this.OFFSET_WIDTH*Math.random()) * scale;
+
+                    // Calculate lerp, accounting for index out of bounds
+                    var lerp = geometry[ci][cj-middle] || 0; // w
+                    lerp += geometry[ci][cj+middle] || 0; // e
+                    if (geometry[ci+middle] != null)
+                        lerp += geometry[ci+middle][cj]; // n
+                    if (geometry[ci-middle] != null)
+                        lerp += geometry[ci-middle][cj]; // s
+                    lerp *= 0.25;
+
+                    geometry[ci][cj] += lerp+rand_offset;
+
+                }
+            }
+        }
+        // Reduce random value
+        scale *= Math.pow(2, -this.H);
+
+    }
+    return geometry;
+
+}
+
+Terrain.prototype.smooth = function(geometry) {
+    // Construct kernel
+    var kernel = function(sigma) {
+        // Gaussian filter
+        var ret = [];
+        var size = Math.floor(sigma*3); // from NVidia implementation
+        for (var i = 0; i < size; i++) {
+            ret[i] = [];
+            for (var j = 0; j < size; j++) {
+                var x = j - Math.floor(size/2);
+                var y = Math.floor(size/2) - i;
+                ret[i][j] = (1 / (2*Math.PI*sigma*sigma)) *
+                    Math.exp(-(x*x + y*y)/(2*sigma*sigma));
+
+            }
+        }
+        return ret;
+
+    }
+
+    var apply = function(i, j, k, g) {
+        // Won't hit edges
+        if (i - Math.floor(k.length / 2) >= 0
+            && i + Math.floor(k.length / 2) <= g.length - 1
+            && j - Math.floor(k.length / 2) >= 0
+            && j + Math.floor(k.length / 2) <= g.length - 1)
+        {
+            sum = 0;
+            for (var ii = 0; ii < k.length; ii++) {
+                for (var jj = 0; jj < k.length; jj++) {
+                    var yy = Math.floor(k.length / 2) - ii;
+                    var xx = jj - Math.floor(k.length / 2);
+                    sum += g[i+xx][j+yy] * k[ii][jj];
+
+                }
+            }
+            g[i][j] = sum;// / k.length*k.length;
+
+        }
+    }
+    
+    var k = kernel(1);
+    for (var i = 0; i < geometry.length; i++) {
+        for (var j = 0; j < geometry.length; j++) {
+            apply(i,j,k,geometry);
+
+        }
+    }
+}
+
+Terrain.prototype.build = function() {
+    var height_array = this.mpd();
+    this.smooth(height_array);
+    height_array = [].concat.apply([], height_array);
+
+    // Geometry for floor is a plane with specified resolution
+    var map_geometry = new THREE.PlaneGeometry(
+            this.height,
+            this.length,
+            (this.height-1) / this.resolution,
+            (this.length-1) / this.resolution);
+
+    // Rotate...
+    map_geometry.applyMatrix(new THREE.Matrix4().makeRotationX(-Math.PI / 2));
+
+    // Add height data to geometry
+    for (var i = 0; i < map_geometry.vertices.length; i++) {
+        map_geometry.vertices[i].y = height_array[i];
+
+    }
+    map_geometry.computeFaceNormals();
+    map_geometry.computeVertexNormals();
+
+    // Build material
+    var material = new THREE.MeshLambertMaterial({
+        color: 0x457D0E,
+        ambient: 0x666633,
+        //wireframe: true
+    });
+
+    // Construct plane and add to scene
+    var plane = new THREE.Mesh(map_geometry, material);
+    plane.doubleSided = true;
+
+    return plane;
+
+};
