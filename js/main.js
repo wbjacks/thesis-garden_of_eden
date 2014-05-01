@@ -42,7 +42,7 @@ function render() {
 
     }
 
-    controls.update(time-lastTime);
+    controls.update(time-lastTime, 0.2);
     lastTime = time;
 
 }
