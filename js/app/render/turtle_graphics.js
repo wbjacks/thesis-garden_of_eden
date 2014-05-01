@@ -155,6 +155,7 @@ Turtle.prototype._pop = function _pop() {
     this.position = state.position;
     this.roatation = state.rotation;
     this.orientation = state.orientation;
+    //this.width = state.width;
 
 };
 

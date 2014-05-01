@@ -79,6 +79,9 @@ function TernaryTree(t) {
             new Turtle.Action(t._F, 50/100),
             new LSystem.Production('A'),
             new Turtle.Action(t._pop),
+
+            new Turtle.Action(t._set, null,
+                function(args, consts) {this.args = [consts.R_I]}),
             new Turtle.Action(t._roll, null,
                 function(args, consts) {this.args = [consts.D_1];}),
             new Turtle.Action(t._push),
@@ -87,6 +90,9 @@ function TernaryTree(t) {
             new Turtle.Action(t._F, 50/100),
             new LSystem.Production('A'),
             new Turtle.Action(t._pop),
+
+            new Turtle.Action(t._set, null,
+                function(args, consts) {this.args = [consts.R_I]}),
             new Turtle.Action(t._roll, null,
                 function(args, consts) {this.args = [consts.D_2]}),
             new Turtle.Action(t._push),
