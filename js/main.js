@@ -62,7 +62,7 @@ var sky_cam = new THREE.PerspectiveCamera( 75,
     window.innerWidth / window.innerHeight, 0.1, 10000);
 */
 
-var axis = new THREE.AxisHelper(20);
+var axis = new THREE.AxisHelper(200);
 scene.add(axis);
 
 var renderer = new THREE.WebGLRenderer();
@@ -135,9 +135,9 @@ var tree_material = new THREE.MeshLambertMaterial({
 });
 
 var t = new Turtle(scene, tree_material, 0.25);
-var tree = new TernaryTree(t);
+var tree = new RandomTree(t);
 var lsys = new LSystem(tree);
-lsys.MAX_DEPTH = 6; // limit depth
+lsys.MAX_DEPTH = 7; // limit depth
 lsys.build();
 t.run(lsys.system);
 t.drop(floor);
@@ -174,4 +174,3 @@ window.addEventListener( 'resize', onWindowResize, false );
 
 // Render
 render();
-

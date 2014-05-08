@@ -183,6 +183,7 @@ Turtle.prototype._$ = function _$() {
 Turtle.prototype.run = function(actions) {
     // Actions are current free of context, use "call" to run them on this
     // instance
+    var initial_position = this.position.clone();
     for (var i = 0; i < actions.length; i++) {
         if (actions[i] instanceof Turtle.Action) {
             actions[i].f.call(this, actions[i].args[0]);
@@ -190,7 +191,7 @@ Turtle.prototype.run = function(actions) {
         }
     }
     // Consider resetting position?
-    this.position.set(0,0,0);
+    this.position.copy(initial_position);
     this.rotation.set(-Math.PI/2,0,0);
     this.scene.add(this);
 
