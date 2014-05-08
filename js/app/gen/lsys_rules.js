@@ -79,6 +79,9 @@ function TernaryTree(t) {
             new Turtle.Action(t._F, 50/100),
             new LSystem.Production('A'),
             new Turtle.Action(t._pop),
+
+            new Turtle.Action(t._set, null,
+                function(args, consts) {this.args = [consts.R_I]}),
             new Turtle.Action(t._roll, null,
                 function(args, consts) {this.args = [consts.D_1];}),
             new Turtle.Action(t._push),
@@ -87,6 +90,9 @@ function TernaryTree(t) {
             new Turtle.Action(t._F, 50/100),
             new LSystem.Production('A'),
             new Turtle.Action(t._pop),
+
+            new Turtle.Action(t._set, null,
+                function(args, consts) {this.args = [consts.R_I]}),
             new Turtle.Action(t._roll, null,
                 function(args, consts) {this.args = [consts.D_2]}),
             new Turtle.Action(t._push),
@@ -113,3 +119,92 @@ function TernaryTree(t) {
 };
 TernaryTree.prototype = new LSystem.RuleSet();
 TernaryTree.prototype.constructor = TernaryTree;
+
+function RandomTree(t) {
+    var consts = {D_1: 180 * (Math.PI / 180),
+                D_2: 252 * (Math.PI / 180),
+                A: 36  * (Math.PI / 180), L_R: 1.070, V_R: 1.732, R_I: 0.01};
+    var initial = [
+        new Turtle.Action(t._set, 1/100),
+        new Turtle.Action(t._F, 200/100),
+        new Turtle.Action(t._roll, Math.PI/4),
+        new LSystem.Production('A', null, null)
+
+    ];
+    var rules = [
+        // Bijunction
+        new LSystem.Rule('A', function(p, random) {return random > 0.5;}, [
+            new Turtle.Action(t._set, null,
+                function(args, consts) {this.args = [consts.R_I]}),
+            new Turtle.Action(t._F, 50/100),
+            new Turtle.Action(t._push),
+            new Turtle.Action(t._F, 50/100),
+            new LSystem.Production('A'),
+            new Turtle.Action(t._pop),
+
+            new Turtle.Action(t._set, null,
+                function(args, consts) {this.args = [consts.R_I]}),
+            new Turtle.Action(t._roll, null,
+                function(args, consts) {this.args = [consts.D_2]}),
+            new Turtle.Action(t._push),
+            new Turtle.Action(t._pitch, null,
+                function(args, consts) {this.args = [consts.A];}),
+            new Turtle.Action(t._F, 50/100),
+            new LSystem.Production('A'),
+            new Turtle.Action(t._pop)
+
+        ]),
+        // Trijunction
+        new LSystem.Rule('A', function(p, random) {return random <= 0.5;}, [
+            new Turtle.Action(t._set, null,
+                function(args, consts) {this.args = [consts.R_I]}),
+            new Turtle.Action(t._F, 0.25),
+            new Turtle.Action(t._push),
+            new Turtle.Action(t._pitch, null,
+                function(args, consts) {this.args = [consts.A];}),
+            new Turtle.Action(t._F, 50/100),
+            new LSystem.Production('A'),
+            new Turtle.Action(t._pop),
+            new Turtle.Action(t._set, null,
+                function(args, consts) {this.args = [consts.R_I]}),
+            new Turtle.Action(t._F, 0.25),
+
+            new Turtle.Action(t._set, null,
+                function(args, consts) {this.args = [consts.R_I]}),
+            new Turtle.Action(t._roll, null,
+                function(args, consts) {this.args = [consts.D_1];}),
+            new Turtle.Action(t._push),
+            new Turtle.Action(t._pitch, null,
+                function(args, consts) {this.args = [consts.A];}),
+            new Turtle.Action(t._F, 0.5),
+            new LSystem.Production('A'),
+            new Turtle.Action(t._pop),
+
+            new Turtle.Action(t._set, null,
+                function(args, consts) {this.args = [consts.R_I]}),
+            new Turtle.Action(t._roll, null,
+                function(args, consts) {this.args = [consts.D_2]}),
+            new Turtle.Action(t._push),
+            new Turtle.Action(t._pitch, null,
+                function(args, consts) {this.args = [consts.A];}),
+            new Turtle.Action(t._F, 0.5),
+            new LSystem.Production('A'),
+            new Turtle.Action(t._pop)
+
+        ]),
+        new LSystem.Rule('_F', function() {return true;}, [
+            new Turtle.Action(t._F, null,
+                function(args, consts) {this.args = [args[0] * consts.L_R];})
+
+        ]),
+        new LSystem.Rule('_set', function() {return true;}, [
+            new Turtle.Action(t._set, null,
+                function(args, consts) {this.args = [args[0]*consts.V_R]})
+
+        ])
+    ];
+    LSystem.RuleSet.call(this, consts, initial, rules);
+
+};
+RandomTree.prototype = new LSystem.RuleSet();
+RandomTree.prototype.constructor = RandomTree;

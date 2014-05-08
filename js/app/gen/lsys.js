@@ -86,9 +86,10 @@ LSystem.prototype.build = function(debug) {
 
 LSystem.prototype.checkRule = function(production) {
     // Must be production
+    var random = Math.random();
     for (var i = 0; i < this.rule_table.rules.length; i++) {
         var rule = this.rule_table.rules[i];
-        if (rule.id == production.id && rule.condition(production)) {
+        if (rule.id == production.id && rule.condition(production, random)) {
             // Rule match
             var output = [];
             for (var j = 0; j < rule.output.length; j++) {

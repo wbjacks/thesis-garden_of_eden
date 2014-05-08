@@ -24,6 +24,7 @@ THREE.PointerLockControls = function ( camera ) {
 	var canJump = false;
 
 	var velocity = new THREE.Vector3();
+    this.v_scale = 1;
 
 	var PI_2 = Math.PI / 2;
 
@@ -139,7 +140,7 @@ THREE.PointerLockControls = function ( camera ) {
 
 	}();
 
-	this.update = function ( delta ) {
+	this.update = function ( delta, v_scale ) {
 
 		if ( scope.enabled === false ) return;
 
@@ -150,11 +151,11 @@ THREE.PointerLockControls = function ( camera ) {
 
 		velocity.y -= 0.25 * delta;
 
-		if ( moveForward ) velocity.z -= 0.12 * delta;
-		if ( moveBackward ) velocity.z += 0.12 * delta;
+		if ( moveForward ) velocity.z -= 0.12 * delta * v_scale;
+		if ( moveBackward ) velocity.z += 0.12 * delta * v_scale;
 
-		if ( moveLeft ) velocity.x -= 0.12 * delta;
-		if ( moveRight ) velocity.x += 0.12 * delta;
+		if ( moveLeft ) velocity.x -= 0.12 * delta * v_scale;
+		if ( moveRight ) velocity.x += 0.12 * delta * v_scale;
 
 		if ( isOnObject === true ) {
 
@@ -166,6 +167,7 @@ THREE.PointerLockControls = function ( camera ) {
 		yawObject.translateY( velocity.y ); 
 		yawObject.translateZ( velocity.z );
 
+        /*
 		if ( yawObject.position.y < 10 ) {
 
 			velocity.y = 0;
@@ -174,7 +176,7 @@ THREE.PointerLockControls = function ( camera ) {
 			canJump = true;
 
 		}
-
+        */
 	};
 
 };

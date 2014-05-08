@@ -6,6 +6,8 @@
     \newcommand{\tab}{\hspace*{2em}}
     \usepackage{fullpage}
     \usepackage{alltt}
+    \usepackage{natbib}
+    \usepackage{graphicx}
 
 \begin{document}
     \maketitle
@@ -24,12 +26,34 @@ between real and virtual, and one's own sense of place.
     % Abs: ad for the paper, shorter,  mirrors introduction, fewer results and motivation
     % Refocus on engineering
 
-    \section{Prior Art}
+    \section{Related Work}
+        % Phrase any assertions with relation to thesis as things done
+        % Phrase tentatively if I didn't do it
+    \tab A significant body of work relating to natural feature generation exists in the video game
+industry. Minecraft\cite{minecraft}, for example, uses advanced terrain and feature generation
+techniques to procedurally create such natural features as mountain ranges, cave systems, chasms,
+coasts, and flora biomes, as well as artifical features such as temples, villages, and mine shafts.
+It achieves truely impressive scenes using simplified graphics, resulting in a stylised look rather
+than striving for verisimillitude. Another game worth mentioning in this context is
+Proteus\cite{proteus}, a small-scale "game of audio-visual exploration and discovery" that allows
+users to explore a highly-stylized generated island. There are many other games that use feature
+generation techniques, either as the creative force of the game world or to fill in between created
+features; I mention these two primarily because, through both gameplay and simple, yet awesome,
+natural scenery, they served as inspiration for this project.
+
+    % Computer rendering of stochastic models
+    % Diffusion equation
+    % Mandelbrot FBR
+    % Eroded fractal terrain
+    % Terrain gen with genetic algorithms
+    % Mighty maple
+    % Plant automata
+    % Plant models
 
     \section{Terrain}
         \subsection{Midpoint Displacement}
-\tab The Midpoint Displacement algorithm, also known as the Diamond-Square algorithm, is an easy
-way to generate surface height maps for terrain. The algorithm is as follows:
+    \tab The Midpoint Displacement algorithm, also known as the Diamond-Square algorithm, is an easy
+way to generate surface height maps for terrain. The algorithm is as follows\cite{martz97}:
     \begin{verbatim}
 Loop while quadrilateral side is at least 1
     // Square step
@@ -56,28 +80,27 @@ Loop while quadrilateral side is at least 1
 
     \tab The algorithm is works well to generate fractal surfaces, and allows for a decent amount
 of control over the percieved "roughness" of the resultant surface in how one defines the scale
-factor. However, it is fairly slow, executing in $O((n-1)^2)$ time. There are also well-documented
-artifacts, notably for steeper surfaces.
+factor. However, it is fairly slow, and there are also well-documented artifacts, notably for
+steeper surfaces. These factors can be mitigated somewhat with careful selection of constants,
+discussed below.
 
-        \subsection{Perlin Noise}
+        \subsection{Feature Extraction}
 
         \subsection{Gaussian Filter}
 
-        \subsection{GoE Algorithm}
-
     \section{Trees}
         \subsection{L-Systems}
-    \tab An L-System describes a recursive substitution system to build increasingly complex
-strings. A system consists of an initial value or set of values, and a series of rules used to
-recursively replace sections of the initial set. The set consists of productions, or operations
-that, when combined with a rule, represent a certain kind of predictable growth. Productions can,
-for example, represent a single branching structure, or trunk growth. As such, L-Systems are an
-excellent way to represent the growth of trees, as they give a simple "seed" rules by which it can
-branch in a biologically feasable way into a much larger system. As L-Systems consist of
-self-replacement rules, they tend to form fractal systems, which are "self-similar" at different
-levels of detail. In an L-System, this self-similarity at smaller levels of detail comes from the
-recursion depth, which replaces productions at small levels with smaller versions of the designs
-seen at a larger scale.
+    \tab An L-System, as defined in \cite{abp96} describes a recursive substitution system to
+build increasingly complex strings. A system consists of an initial value or set of values, and a
+series of rules used to recursively replace sections of the initial set. The set consists of
+productions, or operations that, when combined with a rule, represent a certain kind of predictable
+growth. Productions can, for example, represent a single branching structure, or trunk growth. As
+such, L-Systems are an excellent way to represent the growth of trees, as they give a simple "seed"
+rules by which it can branch in a biologically feasable way into a much larger system. As L-Systems
+consist of self-replacement rules, they tend to form fractal systems, which are "self-similar" at
+different levels of detail. In an L-System, this self-similarity at smaller levels of detail comes
+from the recursion depth, which replaces productions at small levels with smaller versions of the
+designs seen at a larger scale.
 
 
             \subsubsection{Productions}
@@ -160,13 +183,53 @@ modeled, and the effect that they have on tree growth.
             \subsubsection{Discussion of Assumptions}
     \tab Some assumptions were made to simplify and speed up the generation of tree structures:
 \begin{enumerate}
-    \item Straight branches
-    \item Outside forces kept to a minimum
-    \item All trees of similar age, growing at a similar speed
-    \item Clumping is not affected by light shielding
+    \item All branches are straight. In reality, a tree branch is frequently curved, often
+noticeably. However, this project uses straight branches exclusively, as it allows for the
+rendering of a branch with a single, simple, cylindrical primitive. Future work could use warped
+line segments to represent a branch, extruded to a width specified by the turtle.
+
+    %\item Outside forces kept to a minimum
+    \item All trees in this project are of a similar age, growing at a similar speed. In a real
+forest, the actual ages of the trees tend to vary, even while the "age of the forest" grows
+roughly together. Furthermore, due to a multitude of growth factors, trees of similar age might
+grow at drastically different speeds. The end result is that in a real forest, trees might be
+noticeably different in size. This project will not seek to emulate that, though it will result in
+a fairly noticeable visual artefact. Future extensions to the \verb|Forest| module might consider
+tree age in the planting and growth steps.
+
+    \item "Twigs", or branches of an arbitrarily small size, are not to be rendered. While this is
+possible for users of the software package, as it involves merely increasing the depth to which the
+L-System is run, it results in an exponentially larger amount of primitives and a noticeably
+laggier simulation.
+
 \end{enumerate}
 
-            \subsubsection{Bijunctions} % Consider mentioning bronchial systems?
+            \subsubsection{Bijunctions}
+    \tab A cursory glance out the window will reveal that the vast majority of branching junctions
+split the root branch into two smaller branches. The reasons for this will not be discussed in this
+paper, however, for visual integrity, this rule will be maintained. A \emph{branching junction}
+here is defined as any place, usually represented in the L-System as a single production, where a
+single branch divides and deviates into a set of smaller child branches. Such a junction that
+splits into exactly two smaller branches will be defined as a \emph{bijunction}.
+
+    \tab The included L-System \verb|TernaryTree| uses a single branching junction, modeled with
+the production \verb|A()|, to represent a \emph{trijunction}, defined as a branching junction that
+splits into exactly three children\cite{abp96}. There are benefits to using trijunctions. A
+trijunction is the smallest possible branching junction that fills a volumetric space, where a
+bijunction instead is isolated to a single plane. Thus, trijunctions rapidly result in a "fuller"
+looking tree, where bijunctions frequently have the effect of looking planar, or "flat".
+Trijunctions also allow the branch count to grow cubically, thus requiring shallower recursion
+to "fill out" a decent-looking tree. This allows for more flexibility in tree appearance: as the
+L-System used for \verb|TernaryTree| and \verb|RandomTree| grows the size of the tree while
+constructing branches, a tree with trijunctions will appear more detailed at a smaller sizes.
+
+    \tab Thus, careful consideration must be taken to "filling out" a bijunction-exclusive tree.
+One approach is to use \emph{pseudo-trijunctions}, a branching junction consisting of two stacked
+bijunctions. These junctions, where a single branch will split off immediately before a branch
+fork, are fairly common in nature, and allow for trijunction behavior without violating the
+bijunction rule. For further discussion of the methods used to fill out a bijunction tree, see the
+below section on Probabilistic L-Systems.
+% Consider mentioning bronchial systems?
                 % Discuss benefits of trijuction
                 % 
 
@@ -175,9 +238,109 @@ modeled, and the effect that they have on tree growth.
             \subsubsection{Elevation and Gradation}
 
         \subsection{Randomization}
+    \tab In nature, the growth and configuration of trees is a result of both biology and
+environment, and modeling tree geometry should consider their affects. This paper will not seek to
+exactly model the growth details, though it will consider some of them in the design of
+randomization algorithms. For this paper, it is sufficient to say that some growth factors are
+internal to the tree's genetics, information physically encoded and manifesting in commonalities
+between trees of the same species, whereas some are external to the tree, resulting in
+commonalities between trees of different species in the same growth conditions\cite{hlt-rmyb}.
+Internal information is reasonably represented by the L-System, which specifies deterministic
+growth patterns for a specific tree. Taken alone, other influence, trees generated by a single
+L-System display little variation, to the point of being identical. I suggest that the codified
+rules of L-Systems be considered a heuristic for genetic patters of tree growth.
+
+    \tab The tree's local environment also plays a large hand in growth and configuration. As
+described in the above section, such factors external to the tree as Tropism, Growth Density, and
+Elevation affect the presence of trees, the rate of growth, branching, and the general tendency
+to grow in a specific direction. Weather can affect the tree, too: heavy snow might bow a mighty
+branch, or a bolt of lightning might split a trunk. Temperature patterns can affect the growth in
+subtle ways, as well.
+
+    \tab The process described below are an imitation of the above factors, seeking to replicate
+with selective randomness what a perfectly deterministic, physical system would otherwise be able
+to reproduce. To the degree that they are based on actual growth and environmental factors, they
+will be justified; many, however, are simply heuristic hacks that result in a realistic geometry.
+
+% take out result of DNA- undefended
+% find references for biological aspects
+% "we do not consider specific biological models, rather heuristics"
+
             % I might need to play with this a little more
-            % Parameter variation
-            % Probabilistic l-systems
+            \subsubsection{Parameter variation}
+    % Specify type of tree, measure examples from that type
+
+            \subsubsection{Probabilistic L-Systems}
+    \tab Thus far, L-Systems depicted have had replacement rules that match evenly to all of the
+productions defined. This results in static branching structure, as the geometry is deterministic
+and limited in configuration. However, using a \verb|Rule|'s \verb|condition| parameter,
+productions can be replaced randomly with one of a set of options. The \verb|condition| parameter
+could, for example, switch the branching style as recursion depth increases, leading to a different
+configuration for branches than what is used for the trunk.
+
+    \tab Using a provided random value from Javascript's built-in \verb|Math.random()|,
+\verb|condition| can also be replaced probabilistically. This can be used to represent several
+styles of branching. For example, while trees only ever bijunct, trijunction-like branches can
+occur by closely stacking bijunctions. This style of branching can thus be interspersed randomly
+with the usual bijunction style.
+
+    \tab The L-System used to create the trees in Garden of Eden use this style of probabilistic
+branching. The branching production, 'A', can be any of the following styles:
+    \begin{itemize}
+        % Consider using images
+        \item Normal bijunction: Branch continues along current vector, with another branch
+splitting off at a small acute angle.
+        \item Fork bijunction: Branch splits into two, with both diverging at a small acute angle
+from the previous vector.
+        \item Pseudo-trijunction: One branch from a fork trijunction is moved down the parent
+branch, resulting in a normal bijunction stacked below a fork bijunction. See figure
+\ref{fig:fig/pseudotri}.
+        \begin{figure}[h]
+            \centering
+            \includegraphics{fig/pseudotri}
+            \caption[Pseudo-Trijunction]{The result of a pseudo-trijunction production}
+            \label{fig:fig/pseudotri}
+
+        \end{figure}
+    \end{itemize}
+
+            \subsubsection{Gaussian Density Management}
+    \tab A commonly measured property of forests are the density of tree growth. As larger trees
+tend to block sunlight from trees growing beneath them, in general, the older a forest is, the
+further spaced its trees. Furthermore, as there is a "sweet spot" of growth away from an older tree
+where light isn't blocked and roots aren't in conflict over nutrients in the soil, trees,
+especially of a similar age, tend to be spaced fairly evenly. To model this, a algorithm that
+roughly and indeterministically manages density is preferred. The algorithm implemented uses a
+proximity detection algorithm\cite{kramii14} with the central limit theorem to filter out trees
+that are packed too densely. The algorithm is as follows:
+    \begin{alltt}
+Gaussian-Density-Management(density)
+    // Spam step
+    Plant at a random location a number of trees that, given the size of the terrain,
+        results in double the desired density
+
+    // Proximity detection step
+    Create a grid where each square is half the distance between trees, calculated
+        from the density
+    Seed grid with first tree by mapping the tree's location to the grid and adding
+        it to that spot
+    For every subsequent tree \(t_{dest}\),
+        Map tree location to grid
+        If there are any trees mapped to that location or any of its compass neighbors,
+            For each neighboring tree \(t_{src}\),
+                Calculate the Euclidean distance between \(t_{src}\) and \(t_{dest}\)
+                Construct a pair of \(t_{src}\) and \(t_{dest}\), including the calculated
+                    distance
+                Add pair to a list of pairs
+
+    // Filter step
+    For each pair in the pair list
+        MAP DISTANCE TO NORMAL CURVE TO GET PROBABILITY??
+        FILTER USING THAT PROBABILITY??
+    \end{alltt}
+
+            \subsubsection{Gradation Detection}
+            \subsubsection{Local and Global Tropism}
 
     \section{Implementation}
         \subsection{Top Level}
@@ -342,4 +505,11 @@ for a large amount of variation on this tree structure.
             \subsubsection{Profile}
             \subsubsection{Asymptotic Behavior}
         \subsection{Three.js Considerations}
+
+    % ADD what I learned?
+
+    \nocite{*}
+    \bibliographystyle{plain} % abbrev?
+    % dblpp
+    \bibliography{refs}
 \end{document}
