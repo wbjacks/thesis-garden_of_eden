@@ -1,5 +1,5 @@
 \documentclass{article}
-    \title{Thesis Proposal: Garden of Eden}
+    \title{Garden of Eden}
     \author{William B. Jackson}
     \date{February 5, 2014}
 
@@ -8,19 +8,22 @@
     \usepackage{alltt}
     \usepackage{natbib}
     \usepackage{graphicx}
+    \usepackage{amsmath}
 
 \begin{document}
     \maketitle
-    \section{(really bad) Abstract} % NOTE: this is really bad and needs to be re-written.
-    \tab Garden of Eden (GoE) is an exercise in procedural generation of lifelike worlds. Using
-parallelized computations, it randomly generates a forest scene of realistically shaped and
-proportioned asymmetric trees on top of a basic topographical map. This map is then rendered in 3D,
-with support for user navigation. The end result of this project is a sort of game: a static
-rendering of a natural environment, exploring how humans find visual pleasure and meaning in virtual
-environments. The passive interaction of the user is vital to this simulation, as it reflects how
-one would observe a natural environment; ideally, the simulation would evoke similar reactions to
-the environment GoE seeks to emulate, thus exploring the concept of a “natural”, the distinction
-between real and virtual, and one's own sense of place.
+    \section{Abstract} % NOTE: this is really bad and needs to be re-written.
+    \tab Garden of Eden is an exercise in procedural generation of lifelike worlds. It randomly
+generates a forest scene of realistically shaped and proportioned asymmetric trees on top of a
+basic topographical map. This map is then rendered in 3D, with support for user navigation. The end
+result of this project is a sort of game, though without any goal, narrative, or creative purpose.
+It is simply a static rendering of a natural environment, open for exploration, closed to
+manipulation exploring how users find visual pleasure and meaning in virtual environments. The
+passive interaction of the user is vital to this simulation, as it reflects how one would observe a
+natural environment; by forcing the user into the same perspective from which they view actual
+natural environments, Garden of Eden explores the concept of “natural”, the distinction between
+real and virtual, and the user's sense of place. All packages are offered open source, with
+detailed documentation, for users wishing to create their own arboreal experience.
  
     % Intro: what is the need? motivation, difficulty, etc.
     % Abs: ad for the paper, shorter,  mirrors introduction, fewer results and motivation
@@ -41,19 +44,45 @@ generation techniques, either as the creative force of the game world or to fill
 features; I mention these two primarily because, through both gameplay and simple, yet awesome,
 natural scenery, they served as inspiration for this project.
 
+    % Mandelbrot FBR
+    \tab The father of fractals, \citet{mandelbrot68} proposed using fractal Brownian Montion, a
+function that uses concepts from brownian motion with a degree of randomness and fractal constants
+to produce a natural terrain floor.
     % Computer rendering of stochastic models
     % Diffusion equation
-    % Mandelbrot FBR
+    \tab \citet{hnaidi10} uses manual seeding of feature curves combined with the diffusion
+equation to generate feature-based, eroded terrain in a single step. The algorithm propsed requires
+more manual input than the midpoint displacement algorithm used, and is thus less desirable for
+the purposes of Garden of Eden. A similar algorithm could be implemented, however, that randomly
+places feature curves to achieve a more striking, feature-based landscape.
+
     % Eroded fractal terrain
     % Terrain gen with genetic algorithms
+
     % Mighty maple
+    \tab \citet{bloomenthal85} discusses detailed visual aspects of tree generation, specifically
+the maple tree, assuming a realistic skeleton is available. Thus, he mostly describes some of the
+finer visual details in modeling trees, such as branch continuity and bark texture modeling. Some
+of his methods have been considered as extensions, though the nature of his work was detailed
+enough to be out of scope to the current project.
+
     % Plant automata
+
     % Plant models
+    \tab \citet{weber95} draws from an array of previous work to develop a sophisticated and
+well-researched model for the visual depiction of trees. His paper displayed the variability of the
+model with pictures of trees of several species. This accuracy was a combination of modeling a
+large number of growth affectors as well as extensive research and observation of trees to obtain
+a reliable set of constants, many of which I will use in the parameter variation ranomization
+section.
 
     \section{Terrain}
         \subsection{Midpoint Displacement}
-    \tab The Midpoint Displacement algorithm, also known as the Diamond-Square algorithm, is an easy
-way to generate surface height maps for terrain. The algorithm is as follows\cite{martz97}:
+    \tab The classic method of generating terrain maps is by using a fractal Brownian Motion
+function\cite{mandelbrot68}. The function is fairly complex in theory; it can be approximated,
+however, with an algorithm called the midpoint displacement algorithm. The midpoint displacement
+algorithm, also known as the diamond-square algorithm, is an easy way to generate surface height
+maps for terrain. the algorithm is as follows\cite{martz97}:
     \begin{verbatim}
 Loop while quadrilateral side is at least 1
     // Square step
@@ -144,7 +173,8 @@ set of commands that direct the movement of a "turtle", or a drawing point. In 3
 dimensions of orientation are controlled by issuing commands with a specified radial change;
 drawing occurs by moving the turtle forward. The turtle commands implemented are as follows:
 
-\begin{center}
+\begin{table}[h]
+\centering
 \begin{tabular}{|l|l|l|p{7cm}|}
     \hline
     Command & Symbol & Argument & Description \\ \hline \hline
@@ -163,10 +193,12 @@ drawing occurs by moving the turtle forward. The turtle commands implemented are
     \_push & [ & none & Pushes current turtle position and orientation into a stack of previous
         states. \\\hline
     \_pop & ] & none & Pops current turtle position and orientation from a stack of previous
-        states, resetting its current state to the new one. \\\hline
+        states, resetting its current state to the new one. \\ \hline
 
 \end{tabular}
-\end{center}
+\caption[Turtle Commands]{Turtle Commands}
+\label{tab:turtle}
+\end{table}
     \tab The above commands are included in production replacement rules, and basically define what
 a production draws. In this way, a production might be used not just to define where a branch or
 other such growth action occurs, but also to draw the branch upon its replacement with turtle
@@ -181,6 +213,7 @@ will discuss some of the biological phenomenon modeled in the creation of trees,
 modeled, and the effect that they have on tree growth. 
 
             \subsubsection{Discussion of Assumptions}
+            \label{subsubsec:assumptions}
     \tab Some assumptions were made to simplify and speed up the generation of tree structures:
 \begin{enumerate}
     \item All branches are straight. In reality, a tree branch is frequently curved, often
@@ -201,6 +234,16 @@ tree age in the planting and growth steps.
 possible for users of the software package, as it involves merely increasing the depth to which the
 L-System is run, it results in an exponentially larger amount of primitives and a noticeably
 laggier simulation.
+
+    \item In this project, to limit the number of specific L-Systems that must be constructed, only
+a single, archetypal tree species will be constructed. An extension where multiple species are
+generated is discussed at the end.
+
+    \item Trees in nature show allometric growth with regards to the ratio of trunk diameter to
+tree height\cite{bugmann01}. This effect is seen over many years; extremely old trees are often
+notably fat, a result of increasing trunk diameter growth relative to height growth. This project,
+however, will maintain a constant ratio of trunk width growth to height growth. Such isometric
+growth is a fair approximation for most younger trees, and simplifies the growth calculation.
 
 \end{enumerate}
 
@@ -233,9 +276,20 @@ below section on Probabilistic L-Systems.
                 % Discuss benefits of trijuction
                 % 
 
-            \subsubsection{Tropism}
+            %\subsubsection{Tropism} Add to extensions
             \subsubsection{Growth Density}
-            \subsubsection{Elevation and Gradation}
+    \tab A commonly measured property of forests are the density of tree growth. As larger trees
+tend to block sunlight from trees growing beneath them, in general, the older a forest is, the
+further spaced its trees. Furthermore, as there is a "sweet spot" of growth away from an older tree
+where light isn't blocked and roots aren't in conflict over nutrients in the soil, trees,
+especially of a similar age, tend to be spaced fairly evenly. To reflect this, many system models
+of forests break the area up into a grid of forest "patches", with the side of the grid roughly
+corresponding to the size of the oldest tree's canopy\cite{moorcroft01}. This is because a largest
+tree in the patch, called a \emph{canopy tree}, consumes most of the light and nutrient resources
+of the patch. To be sure, other, smaller trees might grow in the same patch, but they must compete
+directly with the more dominant tree.
+
+            %\subsubsection{Elevation and Gradation}
 
         \subsection{Randomization}
     \tab In nature, the growth and configuration of trees is a result of both biology and
@@ -268,7 +322,24 @@ will be justified; many, however, are simply heuristic hacks that result in a re
 
             % I might need to play with this a little more
             \subsubsection{Parameter variation}
+    \tab The L-System described by \verb|TernaryTree| uses fixed constants for growth and branch
+diversion to achieve a realistic, but static, tree. \verb|RandomTree| addresses this problem in
+part by variation of parameters\cite{abp96}. This method involves finding appropriate ranges for
+the defined constants in the L-System and randomly adjusting them at each replacement step. Thus
+the majority of the work in this step is finding acceptable ranges for values.
+
+    \tab A range of 20\% is found to be good for growth constants. Thus, the branch elongation
+constant \verb|L_R| can be randomly assigned to within 20\% of its value carried over from
+\verb|TernaryTree|, or $(0.856, 1.284)$. Similarly, as the tree is assumed to grow isometrically,
+the width growth constant \verb|V_R| is randomly assigned to within 20\% of its initial value, or
+$(1.3856, 2.0784)$.
+% Revisit this with concerns over elongation <1, consider clamping to 1 on bottom end
+
+    % not sure what to do about divergence angle
+
     % Specify type of tree, measure examples from that type
+    % 20% branch length mentioned, should be the same for height
+    
 
             \subsubsection{Probabilistic L-Systems}
     \tab Thus far, L-Systems depicted have had replacement rules that match evenly to all of the
@@ -304,49 +375,95 @@ branch, resulting in a normal bijunction stacked below a fork bijunction. See fi
         \end{figure}
     \end{itemize}
 
-            \subsubsection{Gaussian Density Management}
-    \tab A commonly measured property of forests are the density of tree growth. As larger trees
-tend to block sunlight from trees growing beneath them, in general, the older a forest is, the
-further spaced its trees. Furthermore, as there is a "sweet spot" of growth away from an older tree
-where light isn't blocked and roots aren't in conflict over nutrients in the soil, trees,
-especially of a similar age, tend to be spaced fairly evenly. To model this, a algorithm that
-roughly and indeterministically manages density is preferred. The algorithm implemented uses a
-proximity detection algorithm\cite{kramii14} with the central limit theorem to filter out trees
-that are packed too densely. The algorithm is as follows:
-    \begin{alltt}
-Gaussian-Density-Management(density)
-    // Spam step
-    Plant at a random location a number of trees that, given the size of the terrain,
-        results in double the desired density
+            \subsubsection{Density Management}
+    \tab To manage the spacing of trees in the generated forest, forest system models will be
+adapted, with some extra logic to make them appropriate for a visual output. As discussed above,
+forest gap models break forests up into tree grids, corresponding roughly to the area of affect of
+the canopy trees\cite{moorcroft01}. The grids operate under a set of assumptions\cite{bugmann01},
+some which must be reconsidered for a visual output:
+\begin{enumerate}
+    \item The forest is abstracted as a composite of many small patches of land, where each can
+have a different age and successional stage.
+    \item Patches are horizontally homogeneous, meaning the tree position within a patch is not
+considered.
+    \item The leaves of each tree are located in an indefinitely thin layer at the top of the stem.
+    \item There are no interaction between patches.
+\end{enumerate}
+    \tab Obviously, assumption \#2 must be violated for a visual output: horizontal position in the
+patch is exactly what we do care about when attempting to manage the density of the forest. As the
+position of trees in the patch doesn't matter, we can conclude that the position of the canopy
+trees in the patch doesn't matter, and can be assigned randomly. Furthermore, I will make the
+assumption that only a single tree in each patch is canopy-tree-sized. Assumption \#4 suggests a
+few problems in the system, which will be addressed at the end of the section.
 
-    // Proximity detection step
-    Create a grid where each square is half the distance between trees, calculated
-        from the density
-    Seed grid with first tree by mapping the tree's location to the grid and adding
-        it to that spot
-    For every subsequent tree \(t_{dest}\),
-        Map tree location to grid
-        If there are any trees mapped to that location or any of its compass neighbors,
-            For each neighboring tree \(t_{src}\),
-                Calculate the Euclidean distance between \(t_{src}\) and \(t_{dest}\)
-                Construct a pair of \(t_{src}\) and \(t_{dest}\), including the calculated
-                    distance
-                Add pair to a list of pairs
+    \tab Thus, we begin the algorithm by following assumption \#1, dividing the terrain area up
+into patches. The size of these patches is the subject of disagreement, ranging from the order of
+$10m^{2}$\cite{moorcroft01} to $1km^{2}$\cite{bugmann01}. I will assume that the former is true:
+the size of a patch is dictated by the canopy size of the canopy trees. This size is dictated by
+size and height of a tree, which is roughly correlated with the age of the tree. The L-System used
+to generate the trees in this project uses recursion depth as a rough stand-in for tree age; thus,
+the value assigned as the max recursion depth will be used to dictate the size of a patch. We can
+use this value, along with maximal values for branch length and branching angle, to set an upper
+bound on the size of the canopy. The equation governing the maximum canopy size is:
+\begin{displaymath}
+    \text{max\_canopy} = 2  D  L \sin(\alpha)
+\end{displaymath}
+Where $D$ is the maximum recursion depth of the L-System, $L$ is the maximum length of a branch,
+and $\alpha$ is the maximum branching angle. I will assume that the root system of the tree
+behaves similarly to the branch system, allowing the canopy to singly govern the size of the patch.
+Thus, the algorithm will begin by dividing the terrain into patches of size \verb|max_canopy|.
+Following my discussion of assumption \#2, a tree which will be rendered to maximum depth, thus
+making it a canopy tree, will be placed randomly in each patch. From here, smaller trees could be
+seeded; this will be discussed in the section on extensions. This implementation allows the details
+of forest generation, specifically any constants relating to how the forest is created, to be
+dictated entirely by the trees used in the forest, which prevents the user from having to supply
+additional detail about forest construction and allows for a very clean implementation of the
+\verb|Forest| module.
 
-    // Filter step
-    For each pair in the pair list
-        MAP DISTANCE TO NORMAL CURVE TO GET PROBABILITY??
-        FILTER USING THAT PROBABILITY??
-    \end{alltt}
-
-            \subsubsection{Gradation Detection}
-            \subsubsection{Local and Global Tropism}
+    \tab A major problem with this algorithm is suggested by assumption \#4: there is nothing
+preventing two trees from existing close to their shared border, thus growing unrealistically close
+together, or even colliding. A possible solution to this bug will be discussed in the
+aforementioned section on extensions; for now, however, I leave this visual error up to chance.
 
     \section{Implementation}
         \subsection{Top Level}
+    \tab Garden of Eden requires a decent amount of set up, especially for the use of Three.js, the
+details of which will not be included in this document. A skybox is set up (find citation!!),
+providing the user with a realistic backdrop. The modules are then called; first, the terrain is
+constructed and then generated. The L-System object, predefined in \verb|lsys_rules.js|, is
+constructed, then used in turn to construct a \verb|Forest| object. The \verb|Forest| is then
+constructed, generating each of the trees using the provided L-System and adding their
+corresponding Three.js objects to the scene for rendering. The top level also sets up pointer lock
+controls, allowing the user standard FPS controls, as well as a downward-facing raycaster used for
+floor detecting and camera height maintenance.
 
         \subsection{Terrain Implementation}
+    \tab The terrain algorithm begins by calling the \verb|build()| method, which uses the midpoint
+displacement algorithm to generate a height map. It then runs this height map through a Gaussian
+filter in order to smooth out the low-amplitude, high-frequency terrain noise that would be a
+nuisance to the user. Then, it uses this data to construct a Three.js plane, which is then returned
+as the scene's floor.
             \subsection{terrain\_gen.js}
+\begin{itemize}
+    \item \verb|Terrain(size_degree, resolution)|: The terrain constructor takes as argument
+\verb|size_degree|, a scalar exponent value that is used to determine the size of the terrain. The
+terrain generated is $2^{size_degree}+1$ units on each side, which ensures that the diamond-square
+algorithm can find even, perfect quadrilaterals on each iteration. The resolution, which defaults
+to 1, determines how many vertices per unit the terrain generates. 
+
+    \item \verb|build()|: Initializes construction of the terrain, using built-in values for all
+parameters and returning a Three.js object representing the generated floor. Top-level function.
+
+    \item \verb|mpd()|: Midpoint displacement algorithm. Implemented as described, the method
+returns an array of arrays of float values representing the generated height at each vertex of the
+Three.js plane. Largely controlled by built-in constants; for more information, see section on
+terrain generation.
+
+    \item \verb|smooth()|: Uses a Gaussian filter to smooth out low-amplitude, high-frequency noise
+that would cause the user to jostle vertically as they moved around the map. The parameters of the
+actual filter are fixed.
+\end{itemize}
+
         \subsection{Tree Implementation}
     \tab The creation of a tree begins by creating a rule set for the L-System. A few of these are
 defined in \verb|./js/app/lsys_rules.js|, which can be used as an example for users wishing to
@@ -497,6 +614,8 @@ for a large amount of variation on this tree structure.
 
     \end{itemize}
 
+    \subsection{Forest Implementation}
+
     \section{Runtime} % Why I want it fast, how fast is it
         \subsection{LList Algorithm}
             \subsubsection{Profile}
@@ -505,6 +624,270 @@ for a large amount of variation on this tree structure.
             \subsubsection{Profile}
             \subsubsection{Asymptotic Behavior}
         \subsection{Three.js Considerations}
+        % database vs. background
+
+    \section{Extensions}
+        \subsection{Tree Rendering}
+    \tab Currently, there is a significant user experience issue in the time it takes to properly
+render out a forest of trees. The current solution ignores this, expecting the user to patiently
+wait several minutes for the trees to render into a forest. Extensions to address this issue,
+either by speeding up the processs or by circumventing the issue, are proposed below.
+
+            \subsubsection{Pre-Rendering}
+    \tab Pre-Rendering involves setting the project up with a basic framework to allow for database
+storage of tree primatives. This solution would save generated tree structures, allowing a user to
+simply access the database upon reaching the page instead of running the full generation cycle for
+a forest.
+
+    \tab Several problems arise with this solution. First, data tends to be lost when serializing a
+Javascript object to JSON. Thus, a special serialization process would need to be created in order
+to store the Three.js graphical primitives. Furthermore, as the objects would be created out of
+environmental context, growth affectors such as global and local tropism would not be able to
+affect the geometry of the trees produced.
+
+    \tab The benefits of the solution, however, are significant. The user wait time would likely be
+negligable, allowing the experience to being amost immediately upon accessing the site. For today's
+impatient users, this is extremely important. Additionally, the addition of a database could open
+up extensions such as saving particularly nice generated forests.
+
+            \subsubsection{Background Rendering}
+    \tab Javascript does not support threading; however, several worker queue libraries exist that
+could allow for the creation of trees to happen asynchronously to the creation of the Three.js
+scene. The user would open the page to a freshly generated, but empty, terrain; as they explore,
+fully-grown trees would appear around them as the workers finish. The appearing affect would be
+somewhat jarring, but this could be artistically mitigated with clever visual distraction, such as
+thick fog with increasing visibility as trees appear. See also the below section on Growth Time
+Emulation, which could be used in conjunction with this acceleration process.
+
+            \subsubsection{Tree API}
+    \tab While Javascript does not allow local threading, it has significant asynchronization
+support in AJAX. To take advantage of this, a tree API could be written. This would have an effect
+similar to Background Rendering, except that it would utilize default Javascript functionality.
+Furthermore, there is nothing forcing the API server to use a language that doesn't support
+threading; the generation could be written in a much faster language, outputting carefully
+serialized Three.js objects as an asynchronous HTTP JSON response. Global forest data could also be
+supported by being included as a parameter to the AJAX request to the API.
+
+        \subsection{Graphical Primitives}
+    \tab The current primitive used by the turtle graphics wrapper is a basic cylinder, of diameter
+specified by \verb|Turtle._set()| and length specified by \verb|Turtle._F()| and the turtle's
+speed. This results in a very noticeably blocky tree, where each branch has a discontinuous shift
+in diameter. Obviously, trees in nature to not display such structure; thus, using a different
+graphical primitive would result in a much more realistic-looking tree.
+
+            \subsubsection{Tapered Cylinder}
+    \tab To create a tapered cylinder, the turtle's forward draw command would need to take in to
+account two \verb|Turtle._set()| commands, using them in conjunction with Three.js's cylinder
+pyramid to make a conical frustum. By matching the diameter of the top of one branch with the
+diameter of the bottom of the next, the branches of the tree would blend together, resulting in the
+continuous look found in nature.
+
+    \tab To do this, a new turtle command would need to be implemented. \verb|Turtle._Ft()| would
+work similarly to \verb|Turtle._F()|, except that it would use a conic frustum. The below row
+expands on Table \ref{tab:turtle}.
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|l|l|p{7cm}|}
+    \hline
+    Command & Symbol & Argument & Description \\ \hline \hline
+    \_Ft & Ft & time, width & Moves turtle forward by specified time value. Draws line as a conic
+frustum beginning with the turtle's current diameter and ending at the specified diameter. Also
+sets the turtle's diameter to the specified diameter.\\ \hline
+\end{tabular}
+\caption[Taper Command]{Turtle Taper Command}
+\label{tab:taper}
+\end{table}
+
+            \subsubsection{Extruded Line}
+    \tab Another option for smoothing the discontinuities is using Three.js is to use the extruded
+shape feature of Three.js, using a \verb|THREE.CurvePath| to represent a path. There are several
+benefits to this option. Extruded paths support tapering lines by default, which would allow a
+branch to be represented as a simple, light-weight path. A collection of paths might be able to be
+extruded in a single step, which could improve rendering time. Visually, this would be a very good
+option, as the extrusion process would smooth the branch joints, which currently are merely the
+intersection of cylinder primitives and are discontinuous. Using an extruded line might also allow
+for branch bending; as discussed in Section \ref{subsubsec:assumptions}, branches are currently
+assumed to be perfectly straight, whereas real branches are usually curved to some degree.
+Representing branches as paths would allow for the manipulation of these paths, resulting in a
+extruded branch with a visually more accurately curved shape.
+
+    \tab The process of creating these paths, however, might be a little difficult. It might be
+useful, as with the tapered cylinder, to implement another turtle command that takes as an argument
+a tapering constant. Post-processing of the turtle command list might also generate data to feed to
+the extruded shape constructor, adding a large list traversal but allowing the user to implement it
+without using an L-System constructed with extrusion rules. The details of this implementation,
+however, will be left for future consideration.
+
+        \subsection{Tropism}
+
+        \subsection{Path Traveling}
+    \tab A significant design consideration when making this project is the unique interactive
+experience, especially with regards to modern video games. If this project is to be considered a
+game, then the "objective" is not anything tangible, creative, or destructive; instead, I wish to
+effect a whimsical sense of exploration, reminiscent of childlike play in nature. The user is not
+in control of their environment; in many ways, I hope that this lack of agency inspires a sense of
+curious awe.
+
+    \tab To this end, I would consider removing, or at least limiting, the user's ability to
+navigate the world. The current hosted version significantly limits user navigation speed and
+disables jumping, attempting to "slow down" the experience and force the user to focus on the scene
+instead of navigation concerns and the thrill of speed. An interesting extension, however, would be
+using path-finding algorithms to control, or at least guide, user navigation. 
+
+    \tab One possible implementation would be to bias the user movement with a pathfinding
+algorithm, allowing user control only as slight deviations from the path. Thus user would thus be
+allowed a small amount of control over their exploration, but would ultimately be pulled towards
+the calculated path. Alternatively, movement controls could be disabled completely, allowing the
+user only to look around as they are led on a walk around the forest.
+
+    \tab Several pathfinding algorithms exist for consideration. Dijkstra's algorithm, for example,
+or its extension A*, are designed to find the shortest path in a graph, which can be used to
+calculate a path around obstacles. However, these algorithms are designed to find a shortest path;
+in this case, as the journey is more important than the destination, I propose an alternative
+algorithm, based on Namco's Pac-Man\cite{pittman11}. As the user travels, a random "target point"
+shall be calculated. Then, the player is moved steadily towards that point, using weighted-vector
+calculations. This weighted vector would tend to point directly toward the target point, but would
+be deflected by nearby trees. The action can be thought of as similar to a charged particle moving
+towards a strong attractor, but repulsed by nearby point charges. The user would thus move to
+the most open areas that lead towards the target point; this has an appealing element of realism to
+it, as people tend to travel through forest following perceived "paths", which are usually
+locations of most negative space between trees. When the user arrives at or near the target point,
+a new target point will be calculated, forcing the user into perpetual motion.
+
+        \subsection{Erosion Emulation}
+    \tab Erosion emulation\cite{mustgrave89} is a process by which generated terrain can gain the
+appearance of natural weathering. Currently, terrain is passed through a Gaussian filter, a
+low-pass filter that smooths over small-scale bumps while preserving larger features. This is
+visually effective at removing terrain noise, which is annoying to the user whose height changes
+with respect to the terrain, causing a "bumpy" oscillation of the camera; however, it is not
+naturally justified. Erosion emulation would be more effective: a natural low-pass filter, it would
+smooth over annoying terrain noise while giving the scene a cool sense of natural age.
+
+        \subsection{Tree Species}
+    \tab Currently, only a single, achetypal tree is being created by the specified L-System.
+Obviously, the forests usually consist of different species of trees growing together. This could
+easily be implemented by including a set of L-System rules, each representing a different tree
+species. The species could be randomly selected upon the \verb|Forest|'s seeding step, or, if a
+dominant species is desired, such as is found in a pine forest, probability could be assigned to
+each species. A more sophisticated selection algorithm could take in to consideration biological
+advantage for resource aquisition; for example, a tree predisposed to grow taller might be better
+at capturing light. Careful consideration when constructing the L-System ruleset should be taken if
+specific species are desired, but a significant body of literature exists discussing the
+topological details of different tree species.
+
+        \subsection{Texturing}
+    \tab Current, Garden of Eden almost entirely uses solid colors for a very simple look. The use
+of some basic textures would make the rendered scene look nicer and more realistic.
+
+            \subsubsection{Bark}
+    \tab A basic, brown bark texture would be a significant visual improvement over the current
+solid mesh. This texture could come from images of real trees, which might result in very realistic
+bark; however, the texture should be wrappable in order to avoid seam artefacts. Thus, a bark
+generation method\cite{bloomenthal85} might be preferable. The proposed method uses sawtooth waves
+and coloration to achieve a decently-realistic bark look that is wrappable in all directions.
+
+            \subsubsection{Bump Map}
+    \tab Currently, branches are represented as straight, smooth cylinders. Branches in nature,
+however, are twisted, gnarled, and scarred. This effect can be achieved with a bump map texture,
+which could be generated with the bark texture to produce the appropriate visual. This could also
+be used to simulate burls and broken branches, which could be generated along with the actual
+branches in the L-System, to be rendered out by the texture engine. 
+
+        \subsection{Growth Time Emulation}
+    \tab The L-System used for the trees in Garden of Eden has replacement rules for both
+productions and turtle commands; in other words, it affects both branching junctions and the length
+and width of the rendered branches. Thus, the branches grow with time, offering a rough correlation
+between depth of recursion and age of the tree. This extension seeks to expand on this correlation,
+growing the trees in a process that actually represents time, or the age of the tree in question.
+A single level of recursion, for example, might represent a year of growth. This would open up a
+lot of different avenues of forest growth representation. Growth events, mentioned below, become
+possible. The working assumption that all trees are of a roughly evuivalent age could also be
+broken: the seeding and growth step could occur in parallel, resulting in a forest of trees and
+their sapling progeny.
+
+    \tab This extension would require a significant rewrite of the \verb|Forest| module and a
+specially written L-System ruleset. The \verb|Forest| module, with the backgrounded workflow
+described above, would need to combine the seeding and growing steps. This could involve a
+significant amount of IPC, which Javascript does not easily support. It therefore might work better
+in conjunction with the Tree API setup, which could provide solid backgrounding support as well as
+the IPC required for growth time emulation.
+
+        \subsection{Density Management}
+    \tab There are a few problems with the current density management implementation, which will be
+addressed in detail below. There exists a non-deterministic (due to the use of random placement)
+bug where trees placed might be too close, or even in contact with, trees in adjacent patches.
+Furthermore, the algorithm used easily and logically supports the addition of younger trees to fill
+out the patch.
+
+            \subsubsection{Seedlings}
+    \tab The current density management system lends itself well to extension with regards to
+adding new, younger trees to a given patch. The process should take in to consideration the
+distance from the canopy tree, as the dominant tree in the patch should get most of the resources,
+and preventing young trees from growing too close to the canopy tree would prevent tree collisions
+from occurring. I propose modeling the patch as a particle system, with the canopy tree as a source
+of repulsion, and deriving a probability of elimination from the inverse square law thus derived.
+A constant amount of seedlings would be placed randomly in the patch, perhaps as a part of a growth
+time emulation step. Then, using the above inverse square law, the seedlings would be filtered on
+their derived probability. This would make the density manager follow the gap models on which it is
+based much more accurately, in addition to improving the realism of the generated forest by
+breaking the same-age assumption.
+
+            \subsubsection{Placement Error}
+    \tab The aforementioned placement error arises from breaking the assumption that patches are
+horizontally homogeneous, and that there are no interactions between patches. This can lead to an
+error where trees are placed close to a shared border, resulting in collision of the trees that is
+either unreasonable or impossible. There are two possible solutions to this problem:
+\begin{enumerate}
+    \item Edge repulsion: Similar to the seedlings problem, an inverse square law would be used to
+repulse canopy trees away from the edges of the patch, resulting in a placement distribution
+strongly biased towards the center of the square. This would combine well with the proposed
+seedling extension and offer a probabilistic solution, which has been used throughout the problem
+as a stand-in for natural, deterministic methods.
+
+    \item Closest pair algorithm: A more direct solution would be to use a closest pair
+algorithm\cite{kramii14} to obtain a list of trees that violate visual or natural closeness
+constraints, then filtering said list to remove collisions. The below algorithm is a linear
+solution to the problem:
+\begin{alltt}
+Gaussian-Density-Management(density)
+    // Proximity detection step
+    Create a grid where each square is half the distance between trees, calculated
+        from the density
+    Seed grid with first tree by mapping the tree's location to the grid and adding
+        it to that spot
+    For every subsequent tree \(t_{dest}\),
+        Map tree location to grid
+        If there are any trees mapped to that location or any of its compass neighbors,
+            For each neighboring tree \(t_{src}\),
+                Calculate the Euclidean distance between \(t_{src}\) and \(t_{dest}\)
+                Construct a pair of \(t_{src}\) and \(t_{dest}\), including the calculated
+                    distance
+                Add pair to a list of pairs
+
+    // Filter step
+    For each pair in the pair list
+        MAP DISTANCE TO NORMAL CURVE TO GET PROBABILITY??
+        FILTER USING THAT PROBABILITY??
+    \end{alltt}
+    \tab The algorithm fits well with the current density management system in that it partitions
+the terrain plane into a grid, though of a different size than the patches used to place canopy
+trees. However, it is a somewhat hacky solution, as it only fixes the bug as it occurs, instead of
+finding a more natural solution to prevent it.
+
+\end{enumerate}
+
+
+        \subsection{Growth Events}
+    \tab Growth events are defined generally as any effectively instantaneous event that
+dramatically affects tree growth. Growth events could include, but are not limited to, weather
+affects such as wind damage or lightning, disease, or damage from other trees. These effects are a
+random, singular event that can significantly change the visual appearance and factors affecting
+the growth of a tree, and that don't necessarily have global affects. These events could be
+randomly simulated in the aforementioned growth time emulation, with a random event affecting a
+single, random tree at a specific interval. The result might range from truncated branches to split
+trunks, even complete removal of the tree. They would, however, have to occur during the L-System
+recursion, and would require significant rewriting of the recursion structures to handle outside
+affectors. 
 
     % ADD what I learned?
 
@@ -513,3 +896,7 @@ for a large amount of variation on this tree structure.
     % dblpp
     \bibliography{refs}
 \end{document}
+
+
+% Questions:
+% Should I label all sections referred to, or can I use terms like "aforementioned"?
