@@ -11,3 +11,16 @@ function pp_2darray(a) {
     console.debug(str);
 
 }
+
+function ppTreeLocations(scene) {
+    str = ""
+    for (var i = 0; i < scene.children.length; i++) {
+        if (scene.children[i] instanceof Turtle) {
+            tree = scene.children[i];
+            str += "Tree at (" + tree.position.x + ", " + tree.position.y +
+                ", " + tree.position.z + "). ";
+
+        }
+    }
+    console.debug(str);
+}
