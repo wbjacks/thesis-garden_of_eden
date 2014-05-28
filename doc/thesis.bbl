@@ -1,0 +1,111 @@
+\begin{thebibliography}{10}
+
+\bibitem{arvo88}
+James Arvo, David Kirk, and Apollo Computer.
+\newblock Modeling plants with environment-sensitive automata.
+\newblock In {\em In Proceedings of Ausgraph’88}, pages 27--33, 1988.
+
+\bibitem{bloomenthal85}
+Jules Bloomenthal.
+\newblock Modeling the mighty maple.
+\newblock {\em SIGGRAPH Comput. Graph.}, 19(3):305--311, July 1985.
+
+\bibitem{bugmann01}
+Harald Bugmann.
+\newblock A review of forest gap models.
+\newblock {\em Climatic Change}, 51(3-4):259--305, 2001.
+
+\bibitem{dereffye88}
+Phillippe de~Reffye, Claude Edelin, Jean Fran\c{c}on, Marc Jaeger, and Claude
+  Puech.
+\newblock Plant models faithful to botanical structure and development.
+\newblock {\em SIGGRAPH Comput. Graph.}, 22(4):151--158, June 1988.
+
+\bibitem{fournier82}
+Alain Fournier, Don Fussell, and Loren Carpenter.
+\newblock Computer rendering of stochastic models.
+\newblock {\em Commun. ACM}, 25(6):371--384, June 1982.
+
+\bibitem{hnaidi10}
+Houssam Hnaidi, Eric Guérin, Samir Akkouche, Adrien Peytavie, and Eric Galin.
+\newblock Feature based terrain generation using diffusion equation.
+\newblock {\em Computer Graphics Forum}, 29(7):2179--2186, 2010.
+
+\bibitem{honda71}
+Hisao Honda.
+\newblock Description of the form of trees by the parameters of the tree-like
+  body: Effects of the branching angle and the branch length on the shape of
+  the tree-like body.
+\newblock {\em Journal of Theoretical Biology}, 31(2):331 -- 338, 1971.
+
+\bibitem{proteus}
+Ed~Key and David Kanaga.
+\newblock http://www.visitproteus.com/.
+
+\bibitem{martz97}
+Paul~Martz $\langle$martz@frii.com$\rangle$.
+\newblock Generating random fractal terrain.
+\newblock {\em Game Programmer}, 1996, 1997.
+
+\bibitem{mandelbrot68}
+B.~Mandelbrot and J.~Van~Ness.
+\newblock Fractional brownian motions, fractional noises and applications.
+\newblock {\em SIAM Review}, 10(4):422--437, 1968.
+
+\bibitem{moorcroft01}
+P.R. Moorcroft, G.C. Hurtt, and Stephen~W. Pacala.
+\newblock A method for scaling vegetation dynamics: the ecosystem demography
+  model (ed).
+\newblock {\em Ecological Monographs}, 71(4):557--586, nov 2001.
+
+\bibitem{mustgrave89}
+F.~K. Musgrave, C.~E. Kolb, and R.~S. Mace.
+\newblock The synthesis and rendering of eroded fractal terrains.
+\newblock {\em SIGGRAPH Comput. Graph.}, 23(3):41--50, July 1989.
+
+\bibitem{minecraft}
+Markus Persson and Notch~Software AB.
+\newblock https://www.minecraft.net/.
+
+\bibitem{pittman11}
+Jamey Pittman.
+\newblock The pac-man dossier.
+\newblock http://home.comcast.net/~jpittman2/pacman/pacmandossier.html, June
+  2011.
+
+\bibitem{abp96}
+Przemyslaw Prusinkiewicz and Aristid Lindenmayer.
+\newblock {\em The Algorithmic Beauty of Plants}.
+\newblock Springer-Verlag, 2nd edition, 1996.
+
+\bibitem{hlt-rmyb}
+Michael~G. Ryan and Barbara~J. Yoder.
+\newblock Hydraulic limits to tree height and tree growth.
+\newblock {\em BioScience}, 47(4):pp. 235--242, 1997.
+
+\bibitem{takenaka94}
+Akio Takenaka.
+\newblock A simulation model of tree architecture development based on growth
+  response to local light environment.
+\newblock {\em Journal of Plant Research}, 107(3):321--330, 1994.
+
+\bibitem{kramii14}
+Mark~Sandland \textless Kramii\textgreater.
+\newblock Re: Find all points within a certain distance of each other?
+\newblock http://programmers.stackexchange.com/a/129909, May 2014.
+
+\bibitem{weber95}
+Jason Weber and Joseph Penn.
+\newblock Creation and rendering of realistic trees.
+\newblock In {\em Proceedings of the 22Nd Annual Conference on Computer
+  Graphics and Interactive Techniques}, SIGGRAPH '95, pages 119--128, New York,
+  NY, USA, 1995. ACM.
+
+\bibitem{yokoya89}
+Naokazu Yokoya, Kazuhiko Yamamoto, and Noboru Funakubo.
+\newblock Fractal-based analysis and interpolation of 3d natural surface shapes
+  and their application to terrain modeling.
+\newblock {\em Computer Vision, Graphics, and Image Processing}, 46(3):284 --
+  302, 1989.
+
+\end{thebibliography}
