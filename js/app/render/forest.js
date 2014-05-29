@@ -61,8 +61,6 @@ Forest.prototype.plant = function() {
             this.trees.push({turtle: t, lsys: lsys});
             console.log("Tree #" + this.trees.length
                 + " added at (" + x + ", " + z + ")");
-            console.debug("Listed position is (" + t.position.x + ", "
-                + t.position.z + ")");
 
         }
     }

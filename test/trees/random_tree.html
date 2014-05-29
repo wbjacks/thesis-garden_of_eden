@@ -8,6 +8,7 @@
     <!-- Javascript libraries -->
     <script src="../../js/lib/three.min.js"></script>
     <script src="../../js/lib/TrackballControls.js"></script>
+    <script src="../../js/lib/BufferGeometryUtils.js"></script>
 
 </head>
 
@@ -49,7 +50,7 @@
         //var tree = new HondaTree(t);
         var tree = new RandomTree(t);
         var lsys = new LSystem(tree);
-        lsys.MAX_DEPTH = 8; // limit depth
+        lsys.MAX_DEPTH = 11; // limit depth
 
         // Position camera
         camera.position.set(-13, 16, 13);
@@ -59,13 +60,13 @@
         t.run(lsys.system);
 
         // Add controls
-        //controls = new THREE.TrackballControls(camera);
+        controls = new THREE.TrackballControls(camera);
 
         // Render
         var render = function () {
             requestAnimationFrame(render);
             renderer.render(scene, camera);
-            //controls.update();
+            controls.update();
 
         };
         render(); 
