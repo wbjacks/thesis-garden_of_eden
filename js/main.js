@@ -90,7 +90,7 @@ function init() {
     scene.add(skybox_mesh);
 
     // Construct terrain
-    terrain = new Terrain(5);
+    terrain = new Terrain(7);
     terrain.build();
     scene.add(terrain.plane);
 
