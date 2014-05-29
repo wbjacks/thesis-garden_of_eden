@@ -3,7 +3,6 @@
 function LSystem(rules) {
      // Construct
     this.rule_table = rules;
-    this.seed = Math.random(); // Generate random seed 
     this.system = rules.initial;
     this.MAX_DEPTH = 10; //idk
 

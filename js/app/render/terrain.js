@@ -163,6 +163,26 @@ Terrain.prototype.smooth = function(geometry) {
 
         }
     }
+
+    // Set edges
+    for (var i = 0; i < geometry.length; i++) {
+        for (var j = 0; j < geometry.length; j++) {
+            if (i >= 1 && i < (geometry.length - 1) && j != 0 && j != geometry.length-1)
+                continue;
+
+            // Sides
+            if (i > 0 && i < geometry.length-1) {
+                if (j == 0) geometry[i][j] = geometry[i][j+1];
+                if (j == geometry.length-1) geometry[i][j] = geometry[i][j-1];
+
+            }
+
+            // Top / bottom
+            if (i == 0) geometry[i][j] = geometry[i+1][j];
+            if (i == geometry.length-1) geometry[i][j] = geometry[i-1][j];
+
+        }
+    }
 }
 
 Terrain.prototype.build = function() {

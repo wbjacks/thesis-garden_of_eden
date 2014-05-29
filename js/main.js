@@ -57,7 +57,7 @@ function init() {
     scene.fog = new THREE.FogExp2(0x658ab1, 0.03);
 
     // Add axis
-    scene.add(new THREE.AxisHelper(10));
+    //scene.add(new THREE.AxisHelper(10));
 
     // Generate Skybox
     var urls = [
@@ -99,22 +99,6 @@ function init() {
     var forest = new Forest(terrain, scene);
     forest.addSpecies(tree);
     forest.build();
-
-    /*
-        var material = new THREE.MeshLambertMaterial({
-            color: 0x996633,
-            ambient: 0x666633,
-
-        });
-        var t = new Turtle(scene, material, 0.25);
-        var tree = new RandomTree();
-        var lsys = new LSystem(tree);
-        lsys.MAX_DEPTH = 7; // limit depth
-        // Run tutle
-        lsys.build();
-        t.run(lsys.system);
-        t.drop(terrain.plane);
-    */
 
     // Add controls
     controls = new THREE.PointerLockControls(camera);

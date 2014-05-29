@@ -25,11 +25,10 @@ Forest.prototype.addSpecies = function(lsys) {
 
 };
 
-// Density is a measure of [trees] / [yd]^2
 Forest.prototype.plant = function() {
     // Calcuate
     var tree = this.species[0];
-    var max_depth = 6;
+    var max_depth = 8;
     var L = Math.pow(tree.consts.L_R, max_depth);
     var canopy_width = Math.ceil(2 * max_depth * L * Math.sin(tree.consts.A));
     var num_patches = Math.ceil(this.geography.length / canopy_width);
@@ -70,6 +69,9 @@ Forest.prototype.plant = function() {
 };
 
 Forest.prototype.grow = function() {
+    // Empty species because memory (curse you garbage collect!!!)
+    this.species = null;
+
     // Loop through trees
     var tree_num = 1;
     while (this.trees.length > 0) {
