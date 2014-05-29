@@ -1,5 +1,6 @@
 \documentclass{article}
-    \title{Garden of Eden}
+    \title{Garden of Eden \\ Software Packages for the Generation and Rendering of Visually
+Realistic Trees and Forests}
     \author{William B. Jackson}
     \date{May 30, 2014}
 
@@ -9,11 +10,13 @@
     \usepackage{natbib}
     \usepackage{graphicx}
     \usepackage{amsmath}
-
+    \usepackage{caption}
+    \usepackage{subcaption}
     % `` instead of left quote "
 
 \begin{document}
     \maketitle
+    \pagebreak
 
     \setcounter{tocdepth}{2}
     \tableofcontents
@@ -464,7 +467,8 @@ splitting off at a small acute angle. See figure \ref{fig:fig/bijunct}.
 
         \end{figure}
         \item Forked bijunction: Branch splits into two, with both diverging at a small acute angle
-from the previous vector. See figure \ref{fig:fig/fbijunct}.
+from the previous vector. The sum of the two acute divergences is equal to the divergence angle of
+the normal bijunction\cite{honda71}. See figure \ref{fig:fig/fbijunct}.
         \begin{figure}[h]
             \centering
             \includegraphics{fig/fbijunct}
@@ -1078,10 +1082,43 @@ recursion, and would require significant rewriting of the recursion structures t
 affectors. 
 
     % ADD what I learned?
+\begin{figure}[p]
+\centering
+\begin{subfigure}[b]{\textwidth}
+\centering
+    \includegraphics[height=7cm, keepaspectratio=true]{fig/t1}
+    \label{fig:fig/trees}
+\end{subfigure}
+
+\begin{subfigure}[b]{\textwidth}
+\centering
+    \includegraphics[height=7cm, keepaspectratio=true]{fig/t2}
+    \label{fig:fig/trees}
+\end{subfigure}
+
+\begin{subfigure}[b]{\textwidth}
+\centering
+    \includegraphics[height=7cm, keepaspectratio=true]{fig/t3}
+    \label{fig:fig/trees}
+\end{subfigure}
+    \caption[Test Trees]{Test trees rendered from the individual tree testing script.
+Trees are constructed from the RandomTree rule set, rendered to a depth of 8.}
+\end{figure}
+
+\begin{figure}[p!]
+    \centering
+    \includegraphics[height=0.7\textwidth, angle=90, keepaspectratio=true]{fig/scene3}
+    \caption[Scene]{Image from a small rendered forest. Terrain degree is 5 and
+tree species is RandomTree, rendered to a depth of 8.}
+    \label{fig:fig/scene}
+
+\end{figure}
 
     %\nocite{*}
     \bibliographystyle{plain} % abbrev?
     % dblpp
+    \pagebreak
+    \pagebreak
     \bibliography{refs}
 \end{document}
 
