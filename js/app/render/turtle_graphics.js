@@ -24,6 +24,7 @@ function Turtle(sc, mat, rad) {//, loc, U, L, H) {
     // THREE.js stuff
     this.scene = sc;
     this.material = mat;
+    this.geometry = new THREE.Geometry();
 
 };
 // Turtle inherits Object3D
@@ -40,8 +41,7 @@ Turtle._F = function _F(time) {
     // Create geometry
     // TODO: Taper width?
     var geo = new THREE.CylinderGeometry(this.width, this.width,
-        time*this.rate);
-    var mesh = new THREE.Mesh(geo, this.material);
+        time*this.rate, 8, 1, true);
 
     // Build initial transform matrix
     var mat_it = new THREE.Matrix4();
@@ -53,11 +53,11 @@ Turtle._F = function _F(time) {
     var mat_i = new THREE.Matrix4();
     mat_i.multiplyMatrices(mat_it, mat_ir);
     mat_i.multiply(mat_is);
-    mesh.applyMatrix(mat_i);
+    geo.applyMatrix(mat_i);
 
     // Move in to position, assuming cylinder is oriented y+ w/ axis at center
     // Move into initial position
-    //mesh.rotation.set(Math.PI / 2, 0, 0);
+    //geo.rotation.set(Math.PI / 2, 0, 0);
 
     // Get heading vector
     var heading = new THREE.Vector3(0,0,1);
@@ -72,9 +72,10 @@ Turtle._F = function _F(time) {
     var mat_f = new THREE.Matrix4();
     mat_f.multiplyMatrices(mat_ft, mat_fr);
     mat_f.multiply(mat_fs);
-    mesh.applyMatrix(mat_f);
+    geo.applyMatrix(mat_f);
 
-    this.add(mesh);
+    // Merge into geometry
+    THREE.GeometryUtils.merge(this.geometry, geo);
 
     // Move turtle to new position
     this.position.add(heading.multiplyScalar(time*this.rate));
@@ -193,6 +194,11 @@ Turtle.prototype.run = function(actions) {
     }
     this.rotation.set(-Math.PI/2,0,0);
     this.position.copy(initial_position);
+    var b_geo = THREE.BufferGeometryUtils.fromGeometry(this.geometry);
+    var mesh = new THREE.Mesh(b_geo, this.material);
+    this.add(mesh);
+    //this.geo = null;
+    //this.material = null;
     this.scene.add(this);
 
 };
