@@ -12,11 +12,12 @@ function randomNormal() {
 function Terrain(size_degree, resolution) {
     this.length = Math.pow(2, size_degree)+1 || 257;
     this.height = Math.pow(2, size_degree)+1 || 257;
-    this.resolution = 1;
+    this.resolution = resolution || 1;
     this.H = 1;
     this.MAX_HEIGHT = 2*(this.length / 6);
     this.MIN_HEIGHT = 0;
     this.OFFSET_WIDTH = this.MAX_HEIGHT - this.MIN_HEIGHT;
+    this.plane = null; // Alternatively, extend Object3D
 
 };
 
@@ -162,6 +163,26 @@ Terrain.prototype.smooth = function(geometry) {
 
         }
     }
+
+    // Set edges
+    for (var i = 0; i < geometry.length; i++) {
+        for (var j = 0; j < geometry.length; j++) {
+            if (i >= 1 && i < (geometry.length - 1) && j != 0 && j != geometry.length-1)
+                continue;
+
+            // Sides
+            if (i > 0 && i < geometry.length-1) {
+                if (j == 0) geometry[i][j] = geometry[i][j+1];
+                if (j == geometry.length-1) geometry[i][j] = geometry[i][j-1];
+
+            }
+
+            // Top / bottom
+            if (i == 0) geometry[i][j] = geometry[i+1][j];
+            if (i == geometry.length-1) geometry[i][j] = geometry[i-1][j];
+
+        }
+    }
 }
 
 Terrain.prototype.build = function() {
@@ -173,8 +194,8 @@ Terrain.prototype.build = function() {
     var map_geometry = new THREE.PlaneGeometry(
             this.height,
             this.length,
-            (this.height-1) / this.resolution,
-            (this.length-1) / this.resolution);
+            (this.height - 1) * this.resolution,
+            (this.length - 1) * this.resolution);
 
     // Rotate...
     map_geometry.applyMatrix(new THREE.Matrix4().makeRotationX(-Math.PI / 2));
@@ -195,9 +216,7 @@ Terrain.prototype.build = function() {
     });
 
     // Construct plane and add to scene
-    var plane = new THREE.Mesh(map_geometry, material);
-    plane.doubleSided = true;
-
-    return plane;
+    this.plane = new THREE.Mesh(map_geometry, material);
+    this.plane.doubleSided = true;
 
 };

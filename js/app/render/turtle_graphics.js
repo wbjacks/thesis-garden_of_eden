@@ -35,7 +35,7 @@ Turtle.prototype.constructor = Turtle;
 /* Turtle actions */
 // Move turtle forward, drawing a line
 // TODO: WAAY too many objects created?
-Turtle.prototype._F = function _F(time) {
+Turtle._F = function _F(time) {
     /* DRAW WITH THREE.js */
     // Create geometry
     // TODO: Taper width?
@@ -81,7 +81,7 @@ Turtle.prototype._F = function _F(time) {
 
 };
 // Move turtle forward, not drawing a line
-Turtle.prototype._f = function _f(time) {
+Turtle._f = function _f(time) {
     // Move turtle to new position
     var heading = new THREE.Vector3(0,0,1);
     heading.transformDirection(this.orientation);
@@ -89,7 +89,7 @@ Turtle.prototype._f = function _f(time) {
 
 };
 // Rotate around the U axis ("up"), the local y axis, +
-Turtle.prototype._yaw = function _yaw(deg) {
+Turtle._yaw = function _yaw(deg) {
     // Create rotation matrix
     var rot = new THREE.Matrix4();
     rot.makeRotationY(deg);
@@ -102,7 +102,7 @@ Turtle.prototype._yaw = function _yaw(deg) {
 
 };
 // Rotate around the L axis ("left"), the local x axis, &
-Turtle.prototype._pitch = function _pitch(deg) {
+Turtle._pitch = function _pitch(deg) {
     // Create rotation matrix
     var rot = new THREE.Matrix4();
     rot.makeRotationX(deg);
@@ -115,7 +115,7 @@ Turtle.prototype._pitch = function _pitch(deg) {
 
 };
 // Rotate around the H axis ("heading"), the local z axis, /
-Turtle.prototype._roll = function _roll(deg) {
+Turtle._roll = function _roll(deg) {
     // Create rotation matrix
     var rot = new THREE.Matrix4();
     rot.makeRotationZ(deg);
@@ -128,12 +128,12 @@ Turtle.prototype._roll = function _roll(deg) {
 
 };
 // ?? Sets line width / diameter ??
-Turtle.prototype._set = function _set(width) {
+Turtle._set = function _set(width) {
     this.width = width;
 
 };
 // Pushes state (object3d info) on to stack
-Turtle.prototype._push = function _push() {
+Turtle._push = function _push() {
     // There's prob a better way but for now imma store values sue me
     var state = this.clone();
     state.orientation = this.orientation.clone();
@@ -142,7 +142,7 @@ Turtle.prototype._push = function _push() {
 };
 
 // Pops state from stack
-Turtle.prototype._pop = function _pop() {
+Turtle._pop = function _pop() {
     var state = this.stack.pop();
 
     // ERROR: Stack empty
@@ -160,7 +160,7 @@ Turtle.prototype._pop = function _pop() {
 };
 
 // Created by Honda, honestly I don't really understand what it does
-Turtle.prototype._$ = function _$() {
+Turtle._$ = function _$() {
     // Rotate around heading axis
     var heading = new THREE.Vector3(0,0,1);
     heading.applyEuler(this.rotation);
@@ -184,15 +184,15 @@ Turtle.prototype.run = function(actions) {
     // Actions are current free of context, use "call" to run them on this
     // instance
     var initial_position = this.position.clone();
+    this.position.set(0,0,0);
     for (var i = 0; i < actions.length; i++) {
         if (actions[i] instanceof Turtle.Action) {
             actions[i].f.call(this, actions[i].args[0]);
 
         }
     }
-    // Consider resetting position?
-    this.position.copy(initial_position);
     this.rotation.set(-Math.PI/2,0,0);
+    this.position.copy(initial_position);
     this.scene.add(this);
 
 };
@@ -200,15 +200,13 @@ Turtle.prototype.run = function(actions) {
 // Drops tree on to object below
 Turtle.prototype.drop = function(obj) {
     var rc = new THREE.Raycaster();
-    rc.ray.direction.set(0,-1,0);
     rc.far = 1000;
-
     // Move tree up high
     this.position.setY(100);
-    rc.ray.origin.copy(this.position);
+    rc.set(this.position, new THREE.Vector3(0, -1, 0));
 
     // Find distance and set
-    var intersect = rc.intersectObject(obj);
+    var intersect = rc.intersectObject(obj, true);
     if (intersect.length > 0) 
         this.position.setY(100 - intersect[0].distance);
     else

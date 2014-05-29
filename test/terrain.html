@@ -41,9 +41,9 @@
         scene.add(light);
 
         // Construct terrain
-        var terrain = new Terrain(3);
-        var floor = terrain.build();
-        scene.add(floor);
+        var terrain = new Terrain(4);
+        terrain.build();
+        scene.add(terrain.plane);
 
         // Position camera
         camera.position.set(0, 30, 50);

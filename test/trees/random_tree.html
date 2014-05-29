@@ -25,8 +25,8 @@
         document.body.appendChild( renderer.domElement );
 
         // Create axis
-        var axis = new THREE.AxisHelper(10);
-        scene.add(axis);
+        //var axis = new THREE.AxisHelper(10);
+        //scene.add(axis);
 
         // Create grid
         var grid = new THREE.GridHelper(20, 1);
@@ -49,23 +49,23 @@
         //var tree = new HondaTree(t);
         var tree = new RandomTree(t);
         var lsys = new LSystem(tree);
-        lsys.MAX_DEPTH = 7; // limit depth
+        lsys.MAX_DEPTH = 8; // limit depth
 
         // Position camera
-        camera.position.set(-17, -9, 10);
+        camera.position.set(-13, 16, 13);
 
         // Run tutle
         lsys.build(true);
         t.run(lsys.system);
 
         // Add controls
-        controls = new THREE.TrackballControls(camera);
+        //controls = new THREE.TrackballControls(camera);
 
         // Render
         var render = function () {
             requestAnimationFrame(render);
             renderer.render(scene, camera);
-            controls.update();
+            //controls.update();
 
         };
         render(); 
