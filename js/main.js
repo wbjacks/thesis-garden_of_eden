@@ -11,7 +11,7 @@ var ray, controls, terrain, renderer, scene, camera, last_time;
 var CAMERA_HEIGHT = 2;
 
 // Render func
-function render() {
+function render(forest) {
     requestAnimationFrame(render);
     renderer.render(scene, camera);
 
@@ -38,6 +38,7 @@ function render() {
 
 }
 
+// To do: move this to forest worker?
 function init() {
     // Use three.js to initialize scene, camera, and renderer...
     scene = new THREE.Scene();
@@ -85,20 +86,20 @@ function init() {
 
     });
 
-    var skybox_mesh = new THREE.Mesh(new THREE.CubeGeometry(10000, 10000, 10000), skybox_mat);
+    var skybox_mesh = new THREE.Mesh(
+        new THREE.CubeGeometry(10000, 10000, 10000), skybox_mat);
 
     scene.add(skybox_mesh);
 
     // Construct terrain
-    terrain = new Terrain(7);
+    terrain = new Terrain(6);
     terrain.build();
     scene.add(terrain.plane);
 
     // Add tree
     var tree = new RandomTree();
-    var forest = new Forest(terrain, scene);
-    forest.addSpecies(tree);
-    forest.build();
+    var forest = new Forest(terrain);
+    forest.plant();
 
     // Add controls
     controls = new THREE.PointerLockControls(camera);
@@ -113,6 +114,8 @@ function init() {
     ray.ray.direction.set(0, -1, 0);
     ray.near = 0.1;
     ray.far = 1000;
+
+    return forest;
 
 }
 
@@ -140,5 +143,8 @@ window.onload = function() {
     render();
 }
 */
-init();
+var forest = init();
+// Launch growers
+var manager = new Worker('js/app/worker/forest_manager.js');
+manager.postMessage({type: 'INIT', payload: forest.seeds});
 render();
