@@ -203,6 +203,28 @@ Turtle.prototype.run = function(actions) {
 
 };
 
+Turtle.prototype.serialize = function() {
+    var pkg = {};
+    pkg.vertices = this.geometry.vertices;
+    pkg.faces = this.geomerty.faces;
+    return pkg;
+
+}
+
+Turtle.deserialize = function(pkg) {
+    var geo = new THREE.Geometry();
+    for (var i = 0; i < pkg.vertices.length; i++) {
+        geo.vertices.push(pkg.vertices[i]);
+
+    }
+    for (var i = 0; i < pkg.faces.length; i++) {
+        geo.faces.push(pkg.faces[i]);
+
+    }
+    return geo;
+
+}
+
 // Drops tree on to object below
 Turtle.prototype.drop = function(obj) {
     var rc = new THREE.Raycaster();
