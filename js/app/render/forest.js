@@ -16,14 +16,22 @@ function Forest(geography) {
     this.geography = geography; // Terrain object
     this.geography_length = geography.length;
     this.seeds = [];
+    this.species = [];
 
 };
+
+Forest.prototype.addSpecies = function(lsys) {
+    this.species.push(lsys);
+
+}
 
 Forest.prototype.plant = function() {
     // Calcuate
     var max_depth = 8;
-    var L = Math.pow(tree.consts.L_R, max_depth);
-    var canopy_width = Math.ceil(2 * max_depth * L * Math.sin(tree.consts.A));
+    // Requires species to be set
+    var L = Math.pow(this.species[0].consts.L_R, max_depth);
+    var canopy_width = Math.ceil(2 * max_depth * L * Math.sin(
+        this.species[0].consts.A));
     var num_patches = Math.ceil(this.geography_length / canopy_width);
     var patch_size = Math.ceil(this.geography_length / num_patches);
     console.debug("Patch width is " + canopy_width + ", giving "

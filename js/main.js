@@ -97,8 +97,9 @@ function init() {
     scene.add(terrain.plane);
 
     // Add tree
-    var tree = new RandomTree();
+    var species = new RandomTree();
     var forest = new Forest(terrain);
+    forest.addSpecies(species);
     forest.plant();
 
     // Add controls
@@ -146,5 +147,8 @@ window.onload = function() {
 var forest = init();
 // Launch growers
 var manager = new Worker('js/app/worker/forest_manager.js');
-manager.postMessage({type: 'INIT', payload: forest.seeds});
+manager.postMessage({
+    msg: 'INIT',
+    payload: {seeds: forest.seeds, num_workers: 1}
+});
 render();
