@@ -5,7 +5,7 @@
 //http://www.akdillon.net/pages/classes/cs493/dillon_proj2_final/docs/lsys.html
 
 // Turtle wrapper for three.js
-function Turtle(sc, mat, rad) {//, loc, U, L, H) {
+function Turtle(rad) {//, loc, U, L, H) {
     // Call parent constructor
     THREE.Object3D.call(this);
 
@@ -22,8 +22,6 @@ function Turtle(sc, mat, rad) {//, loc, U, L, H) {
     this.width = rad || 0.25;
 
     // THREE.js stuff
-    this.scene = sc;
-    this.material = mat;
     this.geometry = new THREE.Geometry();
 
 };
@@ -194,19 +192,16 @@ Turtle.prototype.run = function(actions) {
     }
     this.rotation.set(-Math.PI/2,0,0);
     this.position.copy(initial_position);
-    var b_geo = THREE.BufferGeometryUtils.fromGeometry(this.geometry);
-    var mesh = new THREE.Mesh(b_geo, this.material);
-    this.add(mesh);
-    //this.geo = null;
-    //this.material = null;
-    this.scene.add(this);
+
+    // Build optimized buffered geometry
+    this.geometry = THREE.BufferGeometryUtils.fromGeometry(this.geometry);
 
 };
 
 Turtle.prototype.serialize = function() {
     var pkg = {};
     pkg.vertices = this.geometry.vertices;
-    pkg.faces = this.geomerty.faces;
+    pkg.faces = this.geometry.faces;
     return pkg;
 
 }

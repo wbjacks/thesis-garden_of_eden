@@ -2,18 +2,20 @@
 var workers = [];
 var seeds = [];
 
-onmessage = function(pkg) {
+onmessage = processMessage;
+function processMessage(pkg) {
     // Find message type
     console.log("Manager recieved message: " + pkg.data.msg);
     switch (pkg.data.msg) {
         case "INIT": init(pkg.data.payload); break;
         case "WORK_DONE":
             if (seeds.length != 0) {
-                sendSeed(pkg.data.payload);
+                // TODO: Send geometry to main thread for rendering
+                sendSeed(pkg.data.payload.worker_num);
 
             }
             else {
-                killWorker(pkg.data.payload);
+                killWorker(pkg.data.payload.worker_num);
 
             }
             break;
@@ -23,8 +25,11 @@ onmessage = function(pkg) {
             close();
     }
     // Check if all workers are done
-    if (workers.length == 0) close();
+    if (workers.length == 0) {
+        console.log('Closing manager');
+        close();
 
+    }
 }
 
 // Recieve forest data, build into array
@@ -33,19 +38,32 @@ function init(data) {
     for (var i = 0; i < data.num_workers; i++) {
         // Build workers 
         workers[i] = new Worker("grower.js");
+        workers[i].onmessage = processMessage;
         console.log("Grower " + i + " built!");
-        sendSeed(i);
+        sendSeed(i, true);
 
     }
 }
 
 // On message from worker-
-function sendSeed(worker_num) {
+function sendSeed(worker_num, init) {
     if (seeds.length != 0) {
         var seed = seeds.pop();
-        var pkg = {msg: 'MAKE_TREE', payload: seed};
+        var pkg = {};
+        if (init) {
+            pkg = {
+                msg: 'WORK_START',
+                payload: {worker_num: worker_num, seed: seed}
+            };
+        }
+        else {
+            pkg = {
+                msg: 'MAKE_TREE',
+                payload: {seed: seed}
+            };
+        }
         workers[worker_num].postMessage(pkg);
-        console.log("Seed at (" + seed.turtle.x + ", " + seed.turtle.z +
+        console.log("Seed at (" + seed.x + ", " + seed.z +
             ") sent to grower!");
 
     }

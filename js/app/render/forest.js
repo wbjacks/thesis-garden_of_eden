@@ -66,6 +66,8 @@ Forest.prototype.plant = function() {
             t.position.setZ(z);
             */
 
+            // Refactor: Run drop here to calculate y position
+
             this.seeds.push({x: x, z: z});
             console.debug("Tree #" + this.seeds.length
                 + " added at (" + x + ", " + z + ")");
