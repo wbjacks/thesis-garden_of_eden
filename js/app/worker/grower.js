@@ -10,7 +10,6 @@ var worker_num = -1;
 onmessage = function(pkg) {
     if (pkg.data.msg == 'WORK_START') worker_num = pkg.data.payload.worker_num;
     console.log("In worker " + worker_num + ", message is: " + pkg.data.msg);
-    console.log(pkg.data);
 
     var turtle = new Turtle(0.25);
     var species = new RandomTree();

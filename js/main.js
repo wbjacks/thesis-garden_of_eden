@@ -7,7 +7,7 @@
 //  + Add user controls (in another module?)
 
 // GLOBALS
-var ray, controls, terrain, renderer, scene, camera, last_time;
+var ray, controls, terrain, renderer, scene, camera, last_time, tree_material;
 var CAMERA_HEIGHT = 2;
 
 // Render func
@@ -96,11 +96,16 @@ function init() {
     terrain.build();
     scene.add(terrain.plane);
 
-    // Add tree
+    // Plant trees and set tree material
     var species = new RandomTree();
     var forest = new Forest(terrain);
     forest.addSpecies(species);
     forest.plant();
+    tree_material = new THREE.MeshLambertMaterial({
+        color: 0x996633,
+        ambient: 0x666633,
+
+    });
 
     // Add controls
     controls = new THREE.PointerLockControls(camera);
@@ -151,4 +156,13 @@ manager.postMessage({
     msg: 'INIT',
     payload: {seeds: forest.seeds, num_workers: 1}
 });
+// Add geometry to scene
+manager.onmessage = function(pkg) {
+    // Build mesh
+    var geo = new THREE.BufferGeometry();
+    console.log(pkg.data);
+    geo.attributes = pkg.data.geometry.attributes;
+    scene.add(new THREE.Mesh(geo, tree_material));
+
+};
 render();

@@ -200,8 +200,7 @@ Turtle.prototype.run = function(actions) {
 
 Turtle.prototype.serialize = function() {
     var pkg = {};
-    pkg.vertices = this.geometry.vertices;
-    pkg.faces = this.geometry.faces;
+    pkg.attributes = this.geometry.attributes;
     return pkg;
 
 }

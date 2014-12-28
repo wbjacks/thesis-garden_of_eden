@@ -12,6 +12,7 @@ function processMessage(pkg) {
             if (seeds.length != 0) {
                 // TODO: Send geometry to main thread for rendering
                 sendSeed(pkg.data.payload.worker_num);
+                postMessage(pkg.data.payload);
 
             }
             else {
