@@ -9,6 +9,7 @@
 // GLOBALS
 var ray, controls, terrain, renderer, scene, camera, last_time, tree_material;
 var CAMERA_HEIGHT = 2;
+var loader = new THREE.BufferGeometryLoader();
 
 // Render func
 function render(forest) {
@@ -55,7 +56,7 @@ function init() {
     scene.add(light);
 
     // Add fog
-    scene.fog = new THREE.FogExp2(0x658ab1, 0.03);
+    //scene.fog = new THREE.FogExp2(0x658ab1, 0.03);
 
     // Add axis
     //scene.add(new THREE.AxisHelper(10));
@@ -159,10 +160,16 @@ manager.postMessage({
 // Add geometry to scene
 manager.onmessage = function(pkg) {
     // Build mesh
-    var geo = new THREE.BufferGeometry();
-    console.log(pkg.data);
-    geo.attributes = pkg.data.geometry.attributes;
-    scene.add(new THREE.Mesh(geo, tree_material));
+    console.log(JSON.parse(pkg.data.geometry));
+    var geo = loader.parse(JSON.parse(pkg.data.geometry).data);
+    //geo.position.set(pkg.data.position.x, pkg.data.position.y, pkg.data.position.z);
+    // TODO: Push buffer geo back to worker
+    var mesh = new THREE.Mesh(geo, tree_material);
+    //mesh.position.set(pkg.data.position.x, pkg.data.position.y, pkg.data.position.z);
+    //mesh.rotation.set(pkg.data.rotation);
+    //console.log("Adding tree at (" + mesh.position.x + ", " + mesh.position.y + ", " +
+    //    mesh.position.z + ")");
+    scene.add(mesh);
 
 };
 render();

@@ -23,11 +23,17 @@ onmessage = function(pkg) {
     // Grow
     lsys.build();
     turtle.run(lsys.system);
-    var geo = turtle.serialize();
+    var geo = turtle.geometry.toJSON();
     console.log('Posting message from worker ' + worker_num);
+    //console.log(JSON.stringify(geo));
     postMessage({
         msg: 'WORK_DONE',
-        payload: {geometry: geo, worker_num: worker_num}
+        payload: {
+            geometry: JSON.stringify(geo),
+            worker_num: worker_num
+            //position: turtle.position,
+            //rotation: turtle.rotation
+        }
     });
 
 }

@@ -73,7 +73,7 @@ Turtle._F = function _F(time) {
     geo.applyMatrix(mat_f);
 
     // Merge into geometry
-    THREE.GeometryUtils.merge(this.geometry, geo);
+    this.geometry.merge(geo);
 
     // Move turtle to new position
     this.position.add(heading.multiplyScalar(time*this.rate));
@@ -200,7 +200,9 @@ Turtle.prototype.run = function(actions) {
 
 Turtle.prototype.serialize = function() {
     var pkg = {};
-    pkg.attributes = this.geometry.attributes;
+    //pkg.attributes = this.geometry.attributes;
+    pkg.vertices = this.geometry.vertices;
+    pkg.faces = this.geometry.faces;
     return pkg;
 
 }
