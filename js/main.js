@@ -56,7 +56,7 @@ function init() {
     scene.add(light);
 
     // Add fog
-    //scene.fog = new THREE.FogExp2(0x658ab1, 0.03);
+    scene.fog = new THREE.FogExp2(0x658ab1, 0.03);
 
     // Add axis
     //scene.add(new THREE.AxisHelper(10));
@@ -93,7 +93,7 @@ function init() {
     scene.add(skybox_mesh);
 
     // Construct terrain
-    terrain = new Terrain(6);
+    terrain = new Terrain(7);
     terrain.build();
     scene.add(terrain.plane);
 
@@ -153,22 +153,16 @@ window.onload = function() {
 var forest = init();
 // Launch growers
 var manager = new Worker('js/app/worker/forest_manager.js');
+// TODO: Use shared workers created here instead of subworkers to have chrome compatability
 manager.postMessage({
     msg: 'INIT',
-    payload: {seeds: forest.seeds, num_workers: 1}
+    payload: {seeds: forest.seeds, num_workers: 3}
 });
 // Add geometry to scene
 manager.onmessage = function(pkg) {
     // Build mesh
-    console.log(JSON.parse(pkg.data.geometry));
     var geo = loader.parse(JSON.parse(pkg.data.geometry).data);
-    //geo.position.set(pkg.data.position.x, pkg.data.position.y, pkg.data.position.z);
-    // TODO: Push buffer geo back to worker
     var mesh = new THREE.Mesh(geo, tree_material);
-    //mesh.position.set(pkg.data.position.x, pkg.data.position.y, pkg.data.position.z);
-    //mesh.rotation.set(pkg.data.rotation);
-    //console.log("Adding tree at (" + mesh.position.x + ", " + mesh.position.y + ", " +
-    //    mesh.position.z + ")");
     scene.add(mesh);
 
 };

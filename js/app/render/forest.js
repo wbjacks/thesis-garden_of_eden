@@ -38,16 +38,6 @@ Forest.prototype.plant = function() {
         + num_patches + " patches of size " + patch_size + " for "
         + Math.pow(num_patches, 2) + " total patches.");
 
-    // Refactor: Move this to LSYS worker
-    // For tree generation
-    /*
-    var tree_material = new THREE.MeshLambertMaterial({
-        color: 0x996633,
-        ambient: 0x666633,
-
-    });
-    */
-
     // Loop through patches
     for (var i = 0; i < num_patches; i++) {
         for (var j = 0; j < num_patches; j++) {
@@ -65,36 +55,6 @@ Forest.prototype.plant = function() {
         }
     }
 };
-
-// Refactor: The below "grow" functions to be implemented in the LSYS worker
-/*
-Forest.prototype.growAll = function() {
-    // Loop through trees
-    var tree_num = 1;
-    while (this.trees.length > 0) {
-        this.growOne(tree_num++);
-
-    }
-};
-
-Forest.prototype.growOne = function(tree_num, seed) {
-    if (this.trees.length != 0) {
-        var tree = seed ? seed : this.trees.pop();
-
-        // Grow tree- MOVE OUT TO WORKERS
-        //tree.lsys.build();
-        //tree.turtle.run(tree.lsys.system);
-        //tree.turtle.drop(this.geography.plane);
-        console.log("Tree #" + tree_num++ + " grown!");
-
-    }
-    else {
-        console.warn("WARNING: Grow attempted with no trees");
-
-    }
-}
-*/
-
 
 Forest.prototype.build = function() {
     this.plant();

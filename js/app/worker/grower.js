@@ -14,14 +14,14 @@ onmessage = function(pkg) {
     var turtle = new Turtle(0.25);
     var species = new RandomTree();
     var lsys = new LSystem(species); // TODO: get access to species
-    var depth = 7 + Math.round(-1 + 2*Math.random());
+    var depth = 8 + Math.round(-1 + 2*Math.random());
+    console.log("Constructing tree of depth " + depth);
     lsys.MAX_DEPTH = depth;
 
     // Grow
     lsys.build();
     turtle.run(lsys.system, pkg.data.payload.seed);
     var geo = turtle.geometry.toJSON();
-    console.log('Posting message from worker ' + worker_num);
     postMessage({
         msg: 'WORK_DONE',
         payload: {

@@ -1,11 +1,8 @@
 // Turtle_graphics.js is a 3D LOGO-style "turtle" wrapper for three.js used
 // for LSystem drawing.
 
-// BUT ALSO LOOK AT THIS:
-//http://www.akdillon.net/pages/classes/cs493/dillon_proj2_final/docs/lsys.html
-
 // Turtle wrapper for three.js
-function Turtle(rad) {//, loc, U, L, H) {
+function Turtle(rad) {
     // Call parent constructor
     THREE.Object3D.call(this);
 
@@ -34,7 +31,6 @@ Turtle.prototype.constructor = Turtle;
 
 /* Turtle actions */
 // Move turtle forward, drawing a line
-// TODO: WAAY too many objects created?
 Turtle._F = function _F(time) {
     /* DRAW WITH THREE.js */
     // Create geometry
@@ -203,22 +199,6 @@ Turtle.deserialize = function(pkg) {
 
 }
 
-// Drops tree on to object below
-Turtle.prototype.drop = function(obj) {
-    var rc = new THREE.Raycaster();
-    rc.far = 1000;
-    // Move tree up high
-    this.position.setY(100);
-    rc.set(this.position, new THREE.Vector3(0, -1, 0));
-
-    // Find distance and set
-    var intersect = rc.intersectObject(obj, true);
-    if (intersect.length > 0) 
-        this.position.setY(100 - intersect[0].distance);
-    else
-        this.position.setY(0);
-
-};
 
 // Holds an action and parameters. Not sure if this is the best way to do this
 Turtle.Action = function(func, time, inject) {

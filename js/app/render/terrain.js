@@ -191,7 +191,7 @@ Terrain.prototype.build = function() {
     height_array = [].concat.apply([], height_array);
 
     // Geometry for floor is a plane with specified resolution
-    var map_geometry = new THREE.PlaneGeometry(
+    var map_geometry = new THREE.PlaneBufferGeometry(
             this.height,
             this.length,
             (this.height - 1) * this.resolution,
