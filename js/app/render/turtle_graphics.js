@@ -59,19 +59,9 @@ Turtle._F = function _F(time) {
     geo.applyMatrix(this.matrixWorld);
 
     // Merge into geometry
-    //THREE.GeometryUtils.merge(this.geometry, geo);
     this.geometry.merge(geo);
 
     // Move turtle to new position
-    /*
-    var move = new THREE.Vector3(0,0,1);
-    var direction = new THREE.Quaternion();
-    var rot_matrix = new THREE.Matrix4().extractRotation(this.matrix);
-    direction.setFromRotationMatrix(rot_matrix);
-    move.applyQuaternion(direction);
-    move.setLength(time*this.rate);
-    this.matrix.multiply(new THREE.Matrix4().makeTranslation(move.x, move.y, move.z));
-    */
     this.translateZ(time*this.rate);
     this.updateMatrix();
     this.updateMatrixWorld();
@@ -170,7 +160,6 @@ Turtle.prototype.run = function(actions) {
     var b_geo = new THREE.BufferGeometry();
     b_geo.fromGeometry(this.geometry);
     this.geometry = b_geo;
-    //this.geometry = THREE.BufferGeometryUtils.fromGeometry(this.geometry);
 
 };
 
