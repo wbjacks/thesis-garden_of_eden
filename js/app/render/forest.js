@@ -56,19 +56,9 @@ Forest.prototype.plant = function() {
                 Math.floor(this.geography_length/2);
             var z = Math.floor(this.geography_length/2) - (i*patch_size +
                 patch_size*Math.random());
+            var y = this.geography.drop(x,z);
 
-            // Refactor: Move to LSYS worker
-            /*
-            var t = new Turtle(this.scene, tree_material, 0.25);
-            var lsys = new LSystem(this.species[0]);
-            lsys.MAX_DEPTH = max_depth;
-            t.position.setX(x);
-            t.position.setZ(z);
-            */
-
-            // Refactor: Run drop here to calculate y position
-
-            this.seeds.push({x: x, z: z});
+            this.seeds.push({x: x, z: z, y: y});
             console.debug("Tree #" + this.seeds.length
                 + " added at (" + x + ", " + z + ")");
 
@@ -104,6 +94,7 @@ Forest.prototype.growOne = function(tree_num, seed) {
     }
 }
 */
+
 
 Forest.prototype.build = function() {
     this.plant();

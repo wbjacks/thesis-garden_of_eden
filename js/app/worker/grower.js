@@ -16,23 +16,17 @@ onmessage = function(pkg) {
     var lsys = new LSystem(species); // TODO: get access to species
     var depth = 7 + Math.round(-1 + 2*Math.random());
     lsys.MAX_DEPTH = depth;
-    turtle.position.setX(pkg.data.payload.seed.x);
-    turtle.position.setZ(pkg.data.payload.seed.z);
-    //t.position.setY(pkg.payload.seed.y);
 
     // Grow
     lsys.build();
-    turtle.run(lsys.system);
+    turtle.run(lsys.system, pkg.data.payload.seed);
     var geo = turtle.geometry.toJSON();
     console.log('Posting message from worker ' + worker_num);
-    //console.log(JSON.stringify(geo));
     postMessage({
         msg: 'WORK_DONE',
         payload: {
             geometry: JSON.stringify(geo),
             worker_num: worker_num
-            //position: turtle.position,
-            //rotation: turtle.rotation
         }
     });
 
