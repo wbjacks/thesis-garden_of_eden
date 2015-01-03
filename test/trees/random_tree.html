@@ -46,11 +46,11 @@
             ambient: 0x666633,
 
         });
-        var t = new Turtle(scene, material, 0.25);
+        var t = new Turtle(0.25);
         //var tree = new HondaTree(t);
-        var tree = new RandomTree(t);
+        var tree = new RandomTree();
         var lsys = new LSystem(tree);
-        lsys.MAX_DEPTH = 11; // limit depth
+        lsys.MAX_DEPTH = 8; // limit depth
 
         // Position camera
         camera.position.set(-13, 16, 13);
@@ -58,6 +58,7 @@
         // Run tutle
         lsys.build(true);
         t.run(lsys.system);
+        scene.add(new THREE.Mesh(t.geometry, material));
 
         // Add controls
         controls = new THREE.TrackballControls(camera);

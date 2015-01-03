@@ -23,6 +23,7 @@ function Turtle(rad) {//, loc, U, L, H) {
 
     // THREE.js stuff
     this.geometry = new THREE.Geometry();
+    this.matrixAutoUpdate = false;
 
 };
 // Turtle inherits Object3D
@@ -42,6 +43,7 @@ Turtle._F = function _F(time) {
         time*this.rate, 8, 1, true);
 
     // Build initial transform matrix
+    // Sits at the initial position of the turtle and is as long as the movement
     var mat_it = new THREE.Matrix4();
     mat_it.makeTranslation(0, 0, 0.5*this.rate*time);
     var mat_ir = new THREE.Matrix4();
@@ -53,77 +55,64 @@ Turtle._F = function _F(time) {
     mat_i.multiply(mat_is);
     geo.applyMatrix(mat_i);
 
-    // Move in to position, assuming cylinder is oriented y+ w/ axis at center
-    // Move into initial position
-    //geo.rotation.set(Math.PI / 2, 0, 0);
-
-    // Get heading vector
-    var heading = new THREE.Vector3(0,0,1);
-    heading.transformDirection(this.orientation);
-
-    // Build move matrix
-    var mat_ft = new THREE.Matrix4();
-    mat_ft.makeTranslation(this.position.x, this.position.y, this.position.z);
-    var mat_fr = this.orientation;
-    var mat_fs = new THREE.Matrix4();
-    mat_fs.makeScale(1,1,1);
-    var mat_f = new THREE.Matrix4();
-    mat_f.multiplyMatrices(mat_ft, mat_fr);
-    mat_f.multiply(mat_fs);
-    geo.applyMatrix(mat_f);
+    // Move matrix into place
+    geo.applyMatrix(this.matrixWorld);
 
     // Merge into geometry
+    //THREE.GeometryUtils.merge(this.geometry, geo);
     this.geometry.merge(geo);
 
     // Move turtle to new position
-    this.position.add(heading.multiplyScalar(time*this.rate));
+    /*
+    var move = new THREE.Vector3(0,0,1);
+    var direction = new THREE.Quaternion();
+    var rot_matrix = new THREE.Matrix4().extractRotation(this.matrix);
+    direction.setFromRotationMatrix(rot_matrix);
+    move.applyQuaternion(direction);
+    move.setLength(time*this.rate);
+    this.matrix.multiply(new THREE.Matrix4().makeTranslation(move.x, move.y, move.z));
+    */
+    this.translateZ(time*this.rate);
+    this.updateMatrix();
+    this.updateMatrixWorld();
 
 };
 // Move turtle forward, not drawing a line
 Turtle._f = function _f(time) {
     // Move turtle to new position
-    var heading = new THREE.Vector3(0,0,1);
-    heading.transformDirection(this.orientation);
-    this.position.add(heading.multiplyScalar(time*this.rate));
+    this.translateZ(time*this.rate);
+    this.updateMatrix();
+    this.updateMatrixWorld();
 
 };
 // Rotate around the U axis ("up"), the local y axis, +
 Turtle._yaw = function _yaw(deg) {
-    // Create rotation matrix
-    var rot = new THREE.Matrix4();
-    rot.makeRotationY(deg);
+    // Rotate
+    this.rotateY(deg);
 
-    // Do a rotation of the parent object by the matrix
-    this.orientation.multiplyMatrices(this.orientation, rot);
-
-    // Change parent rotation
-    this.setRotationFromMatrix(this.orientation);
+    // Update object
+    this.updateMatrix();
+    this.updateMatrixWorld();
 
 };
 // Rotate around the L axis ("left"), the local x axis, &
 Turtle._pitch = function _pitch(deg) {
-    // Create rotation matrix
-    var rot = new THREE.Matrix4();
-    rot.makeRotationX(deg);
+    // Rotate
+    this.rotateX(deg);
 
-    // Do a rotation of the parent object by the matrix
-    this.orientation.multiplyMatrices(this.orientation, rot);
-
-    // Change parent rotation
-    this.setRotationFromMatrix(this.orientation);
+    // Update object
+    this.updateMatrix();
+    this.updateMatrixWorld();
 
 };
 // Rotate around the H axis ("heading"), the local z axis, /
 Turtle._roll = function _roll(deg) {
-    // Create rotation matrix
-    var rot = new THREE.Matrix4();
-    rot.makeRotationZ(deg);
+    // Rotate
+    this.rotateZ(deg);
 
-    // Do a rotation of the parent object by the matrix
-    this.orientation.multiplyMatrices(this.orientation, rot);
-
-    // Change parent rotation
-    this.setRotationFromMatrix(this.orientation);
+    // Update object
+    this.updateMatrix();
+    this.updateMatrixWorld();
 
 };
 // ?? Sets line width / diameter ??
@@ -134,8 +123,10 @@ Turtle._set = function _set(width) {
 // Pushes state (object3d info) on to stack
 Turtle._push = function _push() {
     // There's prob a better way but for now imma store values sue me
-    var state = this.clone();
-    state.orientation = this.orientation.clone();
+    var state = {
+        matrix: this.matrix.clone(),
+        matrixWorld: this.matrixWorld.clone()
+    }
     this.stack.push(state);
 
 };
@@ -151,29 +142,10 @@ Turtle._pop = function _pop() {
 
     }
     // Now I basically have to make "this" into "state"
-    this.position = state.position;
-    this.roatation = state.rotation;
-    this.orientation = state.orientation;
-    //this.width = state.width;
-
-};
-
-// Created by Honda, honestly I don't really understand what it does
-Turtle._$ = function _$() {
-    // Rotate around heading axis
-    var heading = new THREE.Vector3(0,0,1);
-    heading.applyEuler(this.rotation);
-
-    // ...such that the left axis is in the direction of the cross-product of
-    // the heading vector and the opposite of gravity (world y-axis)
-    var dir = new THREE.Vector3();
-    dir.crossVectors(heading, new THREE.Vector3(0,1,0));
-    var L = new THREE.Vector3();
-    L.applyEuler(this.rotation);
-
-    // Calculate angle
-    var alpha = Math.acos(L.dot(dir));
-    this.rotation.x += alpha;
+    this.matrix.copy(state.matrix);
+    this.matrixWorld.copy(state.matrixWorld);
+    this.position.setFromMatrixPosition(this.matrix);
+    this.rotation.setFromRotationMatrix(this.matrix);
 
 };
 
@@ -182,6 +154,7 @@ Turtle._$ = function _$() {
 Turtle.prototype.run = function(actions) {
     // Actions are current free of context, use "call" to run them on this
     // instance
+    // TODO: Fix the below
     var initial_position = this.position.clone();
     this.position.set(0,0,0);
     for (var i = 0; i < actions.length; i++) {
@@ -194,7 +167,10 @@ Turtle.prototype.run = function(actions) {
     this.position.copy(initial_position);
 
     // Build optimized buffered geometry
-    this.geometry = THREE.BufferGeometryUtils.fromGeometry(this.geometry);
+    var b_geo = new THREE.BufferGeometry();
+    b_geo.fromGeometry(this.geometry);
+    this.geometry = b_geo;
+    //this.geometry = THREE.BufferGeometryUtils.fromGeometry(this.geometry);
 
 };
 
