@@ -27,7 +27,7 @@ Forest.prototype.addSpecies = function(lsys) {
 
 Forest.prototype.plant = function() {
     // Calcuate
-    var max_depth = 8;
+    var max_depth = 1;
     // Requires species to be set
     var L = Math.pow(this.species[0].consts.L_R, max_depth);
     var canopy_width = Math.ceil(2 * max_depth * L * Math.sin(

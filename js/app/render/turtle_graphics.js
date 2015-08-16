@@ -209,6 +209,7 @@ Turtle.Action = function(func, time, inject) {
     this.args = [time]; // Wee hack
     this.inject_args = inject; // Used to dynamically set arguments
     this.id = func.name;
+    this.depth = 0; // used for recursion
 
 };
 
