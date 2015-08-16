@@ -18,6 +18,8 @@ LSystem.Production = function(id, args, inject) {
 
 
 }
+
+// This isn't memory effecient, but at least it isn't reusing the prototype
 LSystem.Production.prototype.clone  = function() {
     return new LSystem.Production(this.id, this.args, this.inject_args);
 
@@ -41,15 +43,18 @@ LSystem.prototype.build = function(debug) {
     // Run recursion
     var self = this;
     function recurse(stack) {
-        if (stack.length == 0) {
-            return [];
+        // Unroll recursion to avoid callstack overflow
+        var output_stack = [];
+        for (var i = 0; i < stack.length; i++) {
+            if (stack[i].depth === self.MAX_DEPTH) {
+                output_stack.push(stack[i]);
+            }
+            else {
+                output_stack = output_stack.concat(recurse(self.checkRule(stack[i])));
+
+            }
         }
-        else if (stack[0].depth == self.MAX_DEPTH) {
-            return [stack[0]].concat(recurse(stack.slice(1)));
-        }
-        else {
-            return recurse(self.checkRule(stack.shift()).concat(stack));
-        }
+        return output_stack;
     }
     this.system = recurse(this.system);
     if (debug === true) {
