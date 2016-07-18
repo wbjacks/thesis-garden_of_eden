@@ -14,7 +14,7 @@ onmessage = function(pkg) {
     var turtle = new Turtle(0.25);
     var species = new RandomTree();
     var lsys = new LSystem(species); // TODO: get access to species
-    var depth = 8 + Math.round(-1 + 2*Math.random());
+    var depth = pkg.data.payload.force_depth || 8 + Math.round(-1 + 2*Math.random());
     console.log("Constructing tree of depth " + depth);
     lsys.MAX_DEPTH = depth;
 

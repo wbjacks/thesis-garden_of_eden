@@ -1,6 +1,7 @@
 // Controls grow workers
 var workers = [];
 var seeds = [];
+var force_depth = undefined;
 
 onmessage = processMessage;
 function processMessage(pkg) {
@@ -9,10 +10,10 @@ function processMessage(pkg) {
     switch (pkg.data.msg) {
         case "INIT": init(pkg.data.payload); break;
         case "WORK_DONE":
+            postMessage(pkg.data.payload);
             if (seeds.length != 0) {
                 // TODO: Send geometry to main thread for rendering
                 sendSeed(pkg.data.payload.worker_num);
-                postMessage(pkg.data.payload);
 
             }
             else {
@@ -36,6 +37,7 @@ function processMessage(pkg) {
 // Recieve forest data, build into array
 function init(data) {
     seeds = data.seeds;
+    force_depth = data.force_depth;
     for (var i = 0; i < data.num_workers; i++) {
         // Build workers 
         workers[i] = new Worker("grower.js");
@@ -46,7 +48,7 @@ function init(data) {
     }
 }
 
-// On message from worker-
+// On message from worker
 function sendSeed(worker_num, init) {
     if (seeds.length != 0) {
         var seed = seeds.pop();
@@ -54,13 +56,20 @@ function sendSeed(worker_num, init) {
         if (init) {
             pkg = {
                 msg: 'WORK_START',
-                payload: {worker_num: worker_num, seed: seed}
+                payload: {
+                    worker_num: worker_num,
+                    seed: seed,
+                    force_depth: force_depth ==! undefined ? null : force_depth
+                }
             };
         }
         else {
             pkg = {
                 msg: 'MAKE_TREE',
-                payload: {seed: seed}
+                payload: {
+                    seed: seed,
+                    force_depth: force_depth ==! undefined ? null : force_depth
+                }
             };
         }
         workers[worker_num].postMessage(pkg);
@@ -85,5 +94,6 @@ function killWorkers() {
 function killWorker(worker_num) {
     console.log("Killing worker " + worker_num);
     workers[worker_num].terminate();
+    workers = workers.slice(0, worker_num) + workers.slice(worker_num+1, workers.length)
 
 }
