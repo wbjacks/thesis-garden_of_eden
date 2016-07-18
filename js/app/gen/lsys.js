@@ -4,7 +4,7 @@ function LSystem(rules) {
      // Construct
     this.rule_table = rules;
     this.system = rules.initial;
-    this.MAX_DEPTH = 10; //idk
+    this.MAX_DEPTH = 1; // default value, set upon creation
 
 }
 
@@ -14,9 +14,12 @@ LSystem.Production = function(id, args, inject) {
     this.id = id; // Production ID
     this.args = args; // Parametric term
     this.inject_args = inject;
+    this.depth = 0;
 
 
 }
+
+// This isn't memory effecient, but at least it isn't reusing the prototype
 LSystem.Production.prototype.clone  = function() {
     return new LSystem.Production(this.id, this.args, this.inject_args);
 
@@ -36,51 +39,29 @@ LSystem.Rule = function(id, condition, output) {
 
 }
 
-LSystem.prototype.LSRecurse = function(prod, depth) {
-    // Base case is depth
-    // TODO: Check if action?
-    if (depth == this.MAX_DEPTH+1) return [prod];
-
-    var stack = [];
-    // Recursive case: replace production, recurse on list, then flatten
-    // TODO This could totes be more recursive
-    var out = this.checkRule(prod);
-    for (var i = 0; i < out.length; i++) {
-        // TODO: Roll out the loop
-        var rec_stack;
-        rec_stack = this.LSRecurse(out[i], depth+1);
-
-        // Flatten list to stack
-        stack = stack.concat(rec_stack.reduce(function(acc, val) {
-            return acc.concat(val);
-
-        }, []));
-    }
-    return stack;
-
-};
-
 LSystem.prototype.build = function(debug) {
     // Run recursion
-    var stack = [];
-    for (var i = 0; i < this.system.length; i++) {
-        // Recurse
-        var rec_stack;
-        rec_stack = this.LSRecurse(this.system[i], 1);
+    var self = this;
+    function recurse(stack) {
+        // Unroll recursion to avoid callstack overflow
+        var output_stack = [];
+        for (var i = 0; i < stack.length; i++) {
+            if (stack[i].depth === self.MAX_DEPTH) {
+                output_stack.push(stack[i]);
+            }
+            else {
+                output_stack = output_stack.concat(recurse(self.checkRule(stack[i])));
 
-        // Flatten list to stack
-        stack = stack.concat(rec_stack.reduce(function(acc, val) {
-            return acc.concat(val);
-
-        }, []));
+            }
+        }
+        return output_stack;
     }
-    this.system = stack;
+    this.system = recurse(this.system);
     if (debug === true) {
         console.debug('Build yields:');
         this.printSystem();
 
     }
-
 };
 
 LSystem.prototype.checkRule = function(production) {
@@ -101,12 +82,16 @@ LSystem.prototype.checkRule = function(production) {
                         production.args, this.rule_table.consts);
 
                 }
+
+                // Modify depth for recursion
+                output[j].depth = production.depth+1;
             }
             return output;
 
         }
     }
-    // If no match, return self
+    // If no match, return self and increase depth
+    production.depth += 1;
     return [production];
 
 }

@@ -33,18 +33,20 @@
         scene.add(grid);
 
         // Construct objects
-        var material = new THREE.MeshBasicMaterial({color: 0x00ff00});
-        var t = new Turtle(scene, material, 0.25);
-        var turtle_string = [new Turtle.Action(t._pitch, Math.PI / 2),
-                            new Turtle.Action(t._F, 20),
-                            new Turtle.Action(t._yaw, Math.PI / 2),
-                            new Turtle.Action(t._f, 20),
-                            new Turtle.Action(t._yaw, Math.PI / 2),
-                            new Turtle.Action(t._F, 20),
-                            new Turtle.Action(t._yaw, Math.PI / 2),
-                            new Turtle.Action(t._F, 20)];
-        //var turtle_string = [new Action(t._yaw, Math.PI / 4), new Action(t._F, 10)];
-        //var turtle_string = [new Action(t._F, 10)];
+        //var material = new THREE.MeshBasicMaterial({color: 0x00ff00});
+        var material = new THREE.MeshNormalMaterial();
+        var t = new Turtle(0.25);
+        var turtle_string = [new Turtle.Action(Turtle._pitch, Math.PI / 2),
+                            new Turtle.Action(Turtle._F, 20),
+                            new Turtle.Action(Turtle._yaw, Math.PI / 2),
+                            new Turtle.Action(Turtle._f, 20),
+                            new Turtle.Action(Turtle._yaw, Math.PI / 2),
+                            new Turtle.Action(Turtle._F, 20),
+                            new Turtle.Action(Turtle._yaw, Math.PI / 2),
+                            new Turtle.Action(Turtle._F, 20)];
+        //var turtle_string = [new Turtle.Action(Turtle._yaw, Math.PI / 4),
+        //    new Turtle.Action(Turtle._F, 10)];
+        //var turtle_string = [new Turtle.Action(Turtle._F, 10)];
 
         // Position camera
         camera.position.z = 20;
@@ -52,9 +54,15 @@
 
         // Run tutle
         t.run(turtle_string);
+        scene.add(new THREE.Mesh(t.geometry, material));
 
         // Add controls
         controls = new THREE.OrbitControls(camera);
+
+        // Add arrow helper
+        var arrow = new THREE.ArrowHelper(new THREE.Vector3(), t.position, 15);
+        arrow.setDirection(t.rotation);
+        //scene.add(arrow);
 
         // Render
         var render = function () {

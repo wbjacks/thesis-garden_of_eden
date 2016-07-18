@@ -191,7 +191,7 @@ Terrain.prototype.build = function() {
     height_array = [].concat.apply([], height_array);
 
     // Geometry for floor is a plane with specified resolution
-    var map_geometry = new THREE.PlaneGeometry(
+    var map_geometry = new THREE.PlaneBufferGeometry(
             this.height,
             this.length,
             (this.height - 1) * this.resolution,
@@ -218,5 +218,20 @@ Terrain.prototype.build = function() {
     // Construct plane and add to scene
     this.plane = new THREE.Mesh(map_geometry, material);
     this.plane.doubleSided = true;
+
+};
+
+// Find height at coordinates
+Terrain.prototype.drop = function(x, z) {
+    if (this.plane == null) console.error("ERROR: Must have terrain constructed");
+
+    var rc = new THREE.Raycaster();
+    rc.far = 1000;
+    // Move tree up high
+    rc.set(new THREE.Vector3(x, 100, z), new THREE.Vector3(0, -1, 0));
+
+    // Find distance and set
+    var intersect = rc.intersectObject(this.plane, true);
+    return intersect.length > 0 ? 100 - intersect[0].distance : 0
 
 };

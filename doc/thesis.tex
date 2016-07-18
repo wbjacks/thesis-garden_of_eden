@@ -769,10 +769,10 @@ and still allowing for $\Theta(n)$ run-time for primitive construction.
     \tab Another, simple data structure redesign is built in to Three.js. The primitive type
 currently used, \verb|CylinderGeometry|, is an extension of Three.js's core \verb|Geometry| object,
 an object-based prototype that allows for the construction of arbitrary shapes via vertices and
-faces. There is, however, a more optimized option: \verb|BufferGeometry|, a buffered representation
+faces. There is, however, a more optimized option: \verb|BufferGeometry|, a buffer representation
 of the same geometry that saves on memory and CPU cycles. It is more difficult to work with, but
 there exist methods to convert regular \verb|Geometry| objects to the more efficient
-\verb|BufferedGeometry| objects. It could also be manipulated directly, constructing a tree by adding
+\verb|BufferGeometry| objects. It could also be manipulated directly, constructing a tree by adding
 vertices and faces instead of cylinders, for a much more condensed tree primitive.
 
             \subsubsection{Parallelism}

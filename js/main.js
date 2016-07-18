@@ -7,11 +7,12 @@
 //  + Add user controls (in another module?)
 
 // GLOBALS
-var ray, controls, terrain, renderer, scene, camera, last_time;
+var ray, controls, terrain, renderer, scene, camera, last_time, tree_material;
 var CAMERA_HEIGHT = 2;
+var loader = new THREE.BufferGeometryLoader();
 
 // Render func
-function render() {
+function render(forest) {
     requestAnimationFrame(render);
     renderer.render(scene, camera);
 
@@ -38,6 +39,7 @@ function render() {
 
 }
 
+// To do: move this to forest worker?
 function init() {
     // Use three.js to initialize scene, camera, and renderer...
     scene = new THREE.Scene();
@@ -85,7 +87,8 @@ function init() {
 
     });
 
-    var skybox_mesh = new THREE.Mesh(new THREE.CubeGeometry(10000, 10000, 10000), skybox_mat);
+    var skybox_mesh = new THREE.Mesh(
+        new THREE.CubeGeometry(10000, 10000, 10000), skybox_mat);
 
     scene.add(skybox_mesh);
 
@@ -94,11 +97,16 @@ function init() {
     terrain.build();
     scene.add(terrain.plane);
 
-    // Add tree
-    var tree = new RandomTree();
-    var forest = new Forest(terrain, scene);
-    forest.addSpecies(tree);
-    forest.build();
+    // Plant trees and set tree material
+    var species = new RandomTree();
+    var forest = new Forest(terrain);
+    forest.addSpecies(species);
+    forest.plant();
+    tree_material = new THREE.MeshLambertMaterial({
+        color: 0x996633,
+        ambient: 0x666633,
+
+    });
 
     // Add controls
     controls = new THREE.PointerLockControls(camera);
@@ -113,6 +121,8 @@ function init() {
     ray.ray.direction.set(0, -1, 0);
     ray.near = 0.1;
     ray.far = 1000;
+
+    return forest;
 
 }
 
@@ -140,5 +150,20 @@ window.onload = function() {
     render();
 }
 */
-init();
+var forest = init();
+// Launch growers
+var manager = new Worker('js/app/worker/forest_manager.js');
+// TODO: Use shared workers created here instead of subworkers to have chrome compatability
+manager.postMessage({
+    msg: 'INIT',
+    payload: {seeds: forest.seeds, num_workers: 3}
+});
+// Add geometry to scene
+manager.onmessage = function(pkg) {
+    // Build mesh
+    var geo = loader.parse(JSON.parse(pkg.data.geometry).data);
+    var mesh = new THREE.Mesh(geo, tree_material);
+    scene.add(mesh);
+
+};
 render();

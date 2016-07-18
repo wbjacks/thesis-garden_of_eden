@@ -7,8 +7,7 @@
 
     <!-- Javascript libraries -->
     <script src="../../js/lib/three.min.js"></script>
-    <script src="../../js/lib/OrbitControls.js"></script>
-    <script src="../../js/lib/BufferGeometryUtils.js"></script>
+    <script src="../../js/lib/TrackballControls.js"></script>
 
 </head>
 
@@ -45,23 +44,12 @@
             ambient: 0x666633,
 
         });
-        var t = new Turtle(0.25);
-        var tree = new RandomTree();
-        var lsys = new LSystem(tree);
-        lsys.MAX_DEPTH = 9; // limit depth
 
         // Position camera
-        camera.position.set(-20, 20, 30);
-
-        // Run tutle
-        lsys.build(true);
-        t.run(lsys.system);
-        scene.add(new THREE.Mesh(t.geometry, material));
+        camera.position.set(-13, 16, 13);
 
         // Add controls
-        controls = new THREE.OrbitControls(camera);
-        // kinda-sort track growing tree
-        controls.target = new THREE.Vector3(0,lsys.MAX_DEPTH+4,0);
+        controls = new THREE.TrackballControls(camera);
 
         // Render
         var render = function () {
@@ -70,6 +58,29 @@
             controls.update();
 
         };
+
+        var loader = new THREE.BufferGeometryLoader();
+        var manager = new Worker('../../js/app/worker/forest_manager.js');
+        // Add geometry to scene
+        manager.onmessage = function(pkg) {
+            // Build mesh
+            console.log("Adding tree");
+            var geo = loader.parse(JSON.parse(pkg.data.geometry).data);
+            var mesh = new THREE.Mesh(geo, material);
+            scene.add(mesh);
+
+        };
+
+        // Send manager
+        manager.postMessage({
+            msg: 'INIT',
+            payload: {
+                seeds: [{x: 0, y: 0, z:0}],
+                num_workers: 1,
+                force_depth: 10
+            }
+        });
+
         render(); 
 
     </script>
