@@ -1,1 +1,1 @@
-<?php include_once("main.html"); ?>
+<?php include_once("test/trees/random_tree.html"); ?>
