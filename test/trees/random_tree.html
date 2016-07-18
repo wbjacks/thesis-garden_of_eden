@@ -7,7 +7,7 @@
 
     <!-- Javascript libraries -->
     <script src="../../js/lib/three.min.js"></script>
-    <script src="../../js/lib/TrackballControls.js"></script>
+    <script src="../../js/lib/OrbitControls.js"></script>
     <script src="../../js/lib/BufferGeometryUtils.js"></script>
 
 </head>
@@ -31,7 +31,6 @@
 
         // Create grid
         var grid = new THREE.GridHelper(20, 1);
-        //grid.rotation.x = -Math.PI / 2;
         scene.add(grid);
 
         // Add light
@@ -47,13 +46,12 @@
 
         });
         var t = new Turtle(0.25);
-        //var tree = new HondaTree(t);
         var tree = new RandomTree();
         var lsys = new LSystem(tree);
-        lsys.MAX_DEPTH = 8; // limit depth
+        lsys.MAX_DEPTH = 11; // limit depth
 
         // Position camera
-        camera.position.set(-13, 16, 13);
+        camera.position.set(-20, 20, 30);
 
         // Run tutle
         lsys.build(true);
@@ -61,7 +59,9 @@
         scene.add(new THREE.Mesh(t.geometry, material));
 
         // Add controls
-        controls = new THREE.TrackballControls(camera);
+        controls = new THREE.OrbitControls(camera);
+        // kinda-sort track growing tree
+        controls.target = new THREE.Vector3(0,lsys.MAX_DEPTH+4,0);
 
         // Render
         var render = function () {
